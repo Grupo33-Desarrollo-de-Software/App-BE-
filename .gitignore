@@ -1,2 +1,3 @@
 venv/
 Notify/__pycache__/
+Notify/db.sqlite3
