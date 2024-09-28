@@ -1,0 +1,13 @@
+<form>
+    <input type="text" id="album" name="album"></input>
+    <button>BuscarAlbum</button>
+</form> 
+
+{% if Resultados %}
+    {% for r in Resultados.results.albummatches.album %}
+        <p>{{r.name}}</p>
+    {% endfor %}
+{% else %}
+    <p>No albums are available.</p>
+{% endif %}
+
