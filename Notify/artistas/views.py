@@ -14,7 +14,7 @@ def getArtista(request):
     try:
         auxArtista = request.GET["artista"]
     except:
-        print("nashe")
+        print("No se especificó un artista")
     r = requests.get(
         f"http://ws.audioscrobbler.com/2.0/?method=artist.search&artist={auxArtista}&api_key=490431c7a4b3aa2e25808893a53d2742&format=json",
         params=request.GET,
