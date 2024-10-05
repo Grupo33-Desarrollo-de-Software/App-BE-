@@ -5,9 +5,7 @@
 
 {% if resultados %}
 {% for r in resultados %}
-<p>{{r.titulo}} - {{r.artista}}</p>
+<h2>{{r.titulo}} - {{r.artista}}</h2>
 <img src="{{r.foto}}">
 {% endfor %}
-{% else %}
-<p>No albums are available.</p>
 {% endif %}

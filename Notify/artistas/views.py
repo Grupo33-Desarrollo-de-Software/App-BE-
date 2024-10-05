@@ -3,6 +3,7 @@ from django.http import HttpResponse
 import requests
 from django.template import loader
 import json
+import apiExterna.apiExterna as api
 
 
 def index(request):
@@ -10,16 +11,13 @@ def index(request):
 
 
 def getArtista(request):
-    auxArtista = ""
+    busqueda = ""
     try:
-        auxArtista = request.GET["artista"]
+        busqueda = request.GET["artista"]
+        resultados = api.buscarArtista(busqueda)
+        context = {"resultados": resultados}
     except:
-        print("No se especificó un artista")
-    r = requests.get(
-        f"http://ws.audioscrobbler.com/2.0/?method=artist.search&artist={auxArtista}&api_key=490431c7a4b3aa2e25808893a53d2742&format=json",
-        params=request.GET,
-    )
-    template = loader.get_template("artistas/buscarArtista.html")
-    Resultados = json.loads(r.text)
-    context = {"Resultados": Resultados}
-    return HttpResponse(template.render(context, request))
+        context = {"resultados": []}
+    finally:
+        template = loader.get_template("artistas/buscarArtista.html")
+        return HttpResponse(template.render(context, request))

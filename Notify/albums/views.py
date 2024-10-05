@@ -14,11 +14,11 @@ def getAlbum(request):
     busqueda = ""
     try:
         busqueda = request.GET["album"]
-    except:
-        pass
+        resultados = api.buscarAlbums(busqueda)
 
-    resultados = api.buscarAlbums(busqueda)
-    print(resultados)
-    template = loader.get_template("albums/buscarAlbum.html")
-    context = {"resultados": resultados}
-    return HttpResponse(template.render(context, request))
+        context = {"resultados": resultados}
+    except:
+        context = {"resultados": []}
+    finally:
+        template = loader.get_template("albums/buscarAlbum.html")
+        return HttpResponse(template.render(context, request))

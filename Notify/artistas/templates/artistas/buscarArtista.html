@@ -3,10 +3,10 @@
     <button>BuscarArtista</button>
 </form>
 
-{% if Resultados %}
-{% for r in Resultados.results.artistmatches.artist %}
-<p>{{r.name}}</p>
+
+{% if resultados %}
+{% for r in resultados %}
+<h2>{{r.nombre}} - Oyentes: {{r.oyentes}}</h2>
+<img src="{{r.foto}}">
 {% endfor %}
-{% else %}
-<p>No albums are available.</p>
 {% endif %}
