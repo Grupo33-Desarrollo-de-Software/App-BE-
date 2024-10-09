@@ -1,0 +1,11 @@
+<form>
+    <input type="text" id="album" name="album"></input>
+    <button>BuscarAlbum</button>
+</form>
+
+{% if resultados %}
+{% for r in resultados %}
+<h2>{{r.titulo}} - {{r.artista}}</h2>
+<img src="{{r.foto}}">
+{% endfor %}
+{% endif %}
