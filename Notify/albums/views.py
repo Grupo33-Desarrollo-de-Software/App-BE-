@@ -3,22 +3,25 @@ from django.http import HttpResponse
 import requests
 from django.template import loader
 import json
-import apiExterna.apiExterna as api
-
 
 def index(request):
     return HttpResponse("Hello, world. You're at the albums index.")
 
-
 def getAlbum(request):
-    busqueda = ""
+    auxAlbum = ""
     try:
-        busqueda = request.GET["album"]
+        auxAlbum = request.GET["album"]
     except:
         pass
-
-    resultados = api.buscarAlbums(busqueda)
-    print(resultados)
+    r = requests.get(f'http://ws.audioscrobbler.com/2.0/?method=album.search&album={auxAlbum}&api_key=490431c7a4b3aa2e25808893a53d2742&format=json', params=request.GET)
     template = loader.get_template("albums/buscarAlbum.html")
-    context = {"resultados": resultados}
+    Resultados = json.loads(r.text)
+    context = {"Resultados" : Resultados}
     return HttpResponse(template.render(context, request))
+
+
+
+    
+    
+    
+

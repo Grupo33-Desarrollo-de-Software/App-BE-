@@ -4,4 +4,4 @@ from django.contrib.auth.models import AbstractUser
 class Usuario(AbstractUser):
     #foto = models.ImageField()
     preferenciaNotificacion = models.TextChoices("mismoArtista", "similares")
-    #listaSeguimiento = 
+
