@@ -11,7 +11,7 @@ def index(request):
 
 
 def getAlbum(request):
-    busqueda = ""
+    auxAlbum = ""
     try:
         busqueda = request.GET["album"]
         resultados = api.buscarAlbums(busqueda)

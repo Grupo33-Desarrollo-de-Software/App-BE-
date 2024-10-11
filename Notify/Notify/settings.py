@@ -31,6 +31,11 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "login.apps.LoginConfig",
+    "usuarios.apps.UsuariosConfig",
+    "home.apps.HomeConfig",
+    "notificaciones.apps.NotificacionesConfig",
+    "followlists.apps.FollowlistsConfig",
     "albums.apps.AlbumsConfig",
     "artistas.apps.ArtistasConfig",
     "django.contrib.admin",
@@ -101,13 +106,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "usuarios.Usuario"
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "America/Argentina/Buenos_Aires"
 
 USE_I18N = True
 
