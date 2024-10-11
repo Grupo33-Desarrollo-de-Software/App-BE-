@@ -1,0 +1,12 @@
+<form>
+    <input type="text" id="artista" name="artista"></input>
+    <button>BuscarArtista</button>
+</form>
+
+
+{% if resultados %}
+{% for r in resultados %}
+<h2>{{r.nombre}} - Oyentes: {{r.oyentes}}</h2>
+<img src="{{r.foto}}">
+{% endfor %}
+{% endif %}
