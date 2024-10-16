@@ -6,6 +6,8 @@ import json
 from notificaciones.models import Notificacion
 from usuarios.models import Usuario
 from django.shortcuts import redirect
+from django.contrib.auth import logout
+
 
 # import apiExterna.apiExterna as api
 
@@ -25,3 +27,7 @@ def crearNotificacion(request):
         titulo="Bienvenido", cuerpo="Holaa amigo, bienvenido a Notify", usuario=usuario
     )
     return redirect("/home/")
+
+def logout_view(request):
+    logout(request)
+    return redirect("/")

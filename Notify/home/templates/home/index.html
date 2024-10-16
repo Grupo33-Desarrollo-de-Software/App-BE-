@@ -1,8 +1,8 @@
-{% if pepe %}
-<h1>Hola {{pepe.kappa}}, tus notificaciones son:</h1>
-{% endif %}
-
 {% if usuario %}
+<form action="{% url 'logout' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Log out</button>
+</form>
 <h1>Hola {{usuario.username}}, tus notificaciones son:</h1>
 {% endif %}
 
@@ -13,3 +13,4 @@
 <p>{{n.usuario.username}}</p>
 {% endfor %}
 {% endif %}
+
