@@ -4,10 +4,12 @@
 </form>
 
 {% if resultados %}
-{% for r in resultados %}
-<h2>{{r.titulo}} - {{r.artista}}</h2>
-<img src="{{r.foto}}">
-{% endfor %}
-{% else %}
-<p>No se encontró ningún álbum</p>
+    {% for r in resultados %}
+        <h2>{{r.titulo}} - {{r.artista}}</h2>
+
+
+        <img src="{{r.foto}}">
+        {% endfor %}
+    {% else %}
+    <p>No se encontró ningún álbum</p>
 {% endif %}

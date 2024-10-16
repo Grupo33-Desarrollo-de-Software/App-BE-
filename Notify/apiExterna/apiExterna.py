@@ -3,7 +3,7 @@ import requests
 API_URL = "http://ws.audioscrobbler.com/2.0/"
 KEY = "490431c7a4b3aa2e25808893a53d2742"
 
-
+################################ ALBUM ################################
 def parsearAlbum(album):
     resultado = {
         "titulo": album["name"],
@@ -13,19 +13,6 @@ def parsearAlbum(album):
     return resultado
 
 
-def tieneFoto(elem):
-    if elem["foto"]:
-        return True
-    return False
-
-
-# Retorna una lista de albums de la forma
-# {
-#   "titulo": "Doo-Wops & Hooligans",
-#   "artista": "Bruno Mars",
-#   "foto": "http://www...",
-# }
-# NOTA: solo retorna álbumes con fotos
 def buscarAlbums(nombre):
     albums = []
     params = {
@@ -39,18 +26,44 @@ def buscarAlbums(nombre):
     # print(albumsJson)
     albums = map(parsearAlbum, albumsJson)
     albums = filter(tieneFoto, albums)
-
     return list(albums)
-
-
-# Retorna una lista de artistas de la forma
+# Retorna una lista de albums de la forma
 # {
-#   "nombre": "Bruno Mars",
+#   "titulo": "Doo-Wops & Hooligans",
+#   "artista": "Bruno Mars",
 #   "foto": "http://www...",
 # }
-# NOTA: solo retorna artistas con fotos
+# NOTA: solo retorna álbumes con fotos
 
 
+def tieneFoto(elem):
+    if elem["foto"]:
+        return True
+    return False
+
+def buscarAlbum(mbid):
+    params = {
+        "method": "album.getinfo",
+        "api_key": KEY,
+        "mbid": mbid,
+        "format": "json",
+    }
+    r = requests.get(API_URL, params=params)
+    albumJson = r.json()
+    return albumJson
+
+def parsearAlbum2(album):
+    resultado = {
+        "titulo": album["name"],
+        "artista": album["artist"]
+    }
+    return resultado
+
+
+
+
+
+################################ ARTISTA ################################
 def parsearArtista(artista):
     resultado = {
         "nombre": artista["name"],
@@ -79,3 +92,10 @@ def buscarArtista(nombre):
     artistas = list(filter(tieneFoto, artistas))
     artistas.sort(reverse=True, key=oyentes)
     return artistas
+
+# Retorna una lista de artistas de la forma
+# {
+#   "nombre": "Bruno Mars",
+#   "foto": "http://www...",
+# }
+# NOTA: solo retorna artistas con fotos

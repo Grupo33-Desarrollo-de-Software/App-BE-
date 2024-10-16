@@ -11,7 +11,6 @@ def index(request):
 
 
 def getAlbum(request):
-    auxAlbum = ""
     try:
         busqueda = request.GET["album"]
         resultados = api.buscarAlbums(busqueda)
@@ -21,4 +20,16 @@ def getAlbum(request):
         context = {"resultados": []}
     finally:
         template = loader.get_template("albums/buscarAlbum.html")
+        return HttpResponse(template.render(context, request))
+    
+def getInfo(request,mbid):
+    try:
+        print(mbid)
+        resultado = api.parsearAlbum2(api.buscarAlbum(mbid))
+#        resultado = api.parsearAlbum(api.buscarAlbum(mbid))
+        context = {"resultado": resultado}
+    except:
+        context = {"resultado": []}
+    finally:
+        template = loader.get_template("albums/masinfo.html")
         return HttpResponse(template.render(context, request))
