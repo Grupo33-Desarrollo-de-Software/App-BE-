@@ -4,4 +4,7 @@
 
     <input type="text" id="password" name="password"></input>
     <button>Login</button>
+    {% if invalid_user%}
+    <p>Usuario inválido</p>
+    {% endif%}
 </form>

@@ -4,10 +4,13 @@ from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
 
 
-def index(request, invalid=False):
-    print(invalid)
+def index(request):
+        return redirect("/login", permanent=True)
+
+def login_view(request):
     if request.method == "GET":
-        context = {}
+        invalid_user = bool(request.GET.get('invalid-user'))
+        context = {"invalid_user": invalid_user}
         template = loader.get_template("login/index.html")
         return HttpResponse(template.render(context, request))
     elif request.method == "POST":
@@ -18,5 +21,4 @@ def index(request, invalid=False):
             login(request, user)
             return redirect("/home")
         else:
-            # TODO: esto no funciona >:(
-            return redirect("/", invalid=True)
+            return redirect("/login/?invalid-user=true")
