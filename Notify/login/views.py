@@ -4,7 +4,8 @@ from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
 
 
-def index(request):
+def index(request, invalid=False):
+    print(invalid)
     if request.method == "GET":
         context = {}
         template = loader.get_template("login/index.html")
@@ -17,14 +18,5 @@ def index(request):
             login(request, user)
             return redirect("/home")
         else:
-            return redirect("")
-    # No backend authenticated the credentials
-    """try:
-        busqueda = request.GET["album"]
-
-        context = {"resultados": resultados}
-    except:
-        context = {"resultados": []}
-    finally:
-        template = loader.get_template("albums/buscarAlbum.html")
-        return HttpResponse(template.render(context, request))"""
+            # TODO: esto no funciona >:(
+            return redirect("/", invalid=True)

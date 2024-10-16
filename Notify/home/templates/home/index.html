@@ -1,16 +1,22 @@
-{% if usuario %}
+<nav>
+    <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        {% if usuario.is_superuser %}
+        <li><a href="{% url 'admin:index' %}">Admin</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
 <form action="{% url 'logout' %}" method="post">
     {% csrf_token %}
     <button type="submit">Log out</button>
 </form>
 <h1>Hola {{usuario.username}}, tus notificaciones son:</h1>
-{% endif %}
 
-{% if notificaciones %}
 {% for n in notificaciones %}
 <h2>{{n.titulo}}</h2>
 <p>{{n.cuerpo}}</p>
 <p>{{n.usuario.username}}</p>
+{% empty %}
+<p>No tienes notificaciones :(</p>
 {% endfor %}
-{% endif %}
-
