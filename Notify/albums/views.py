@@ -14,7 +14,6 @@ def getAlbum(request):
     try:
         busqueda = request.GET["album"]
         resultados = api.buscarAlbums(busqueda)
-
         context = {"resultados": resultados}
     except:
         context = {"resultados": []}
@@ -24,9 +23,10 @@ def getAlbum(request):
     
 def getInfo(request,mbid):
     try:
-        print(mbid)
-        resultado = api.parsearAlbum2(api.buscarAlbum(mbid))
-#        resultado = api.parsearAlbum(api.buscarAlbum(mbid))
+        albumAux = api.buscarAlbum(mbid)
+        print(albumAux)
+        resultado = api.parsearAlbum2(albumAux)
+        print(resultado)
         context = {"resultado": resultado}
     except:
         context = {"resultado": []}

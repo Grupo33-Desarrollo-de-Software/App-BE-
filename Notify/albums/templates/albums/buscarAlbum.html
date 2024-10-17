@@ -6,8 +6,9 @@
 {% if resultados %}
     {% for r in resultados %}
         <h2>{{r.titulo}} - {{r.artista}}</h2>
-
-
+        {% if r.mbid %}
+            <p><a href="{% url 'detalle' r.mbid %}">Más información</a></p>
+        {% endif %}
         <img src="{{r.foto}}">
         {% endfor %}
     {% else %}

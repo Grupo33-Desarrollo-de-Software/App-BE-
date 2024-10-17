@@ -9,6 +9,7 @@ def parsearAlbum(album):
         "titulo": album["name"],
         "artista": album["artist"],
         "foto": album["image"][3]["#text"],
+        "mbid" : album["mbid"],
     }
     return resultado
 
@@ -53,11 +54,20 @@ def buscarAlbum(mbid):
     return albumJson
 
 def parsearAlbum2(album):
+    aux = album["album"]
     resultado = {
-        "titulo": album["name"],
-        "artista": album["artist"]
+        "titulo": aux["name"],
+        "artista": aux["artist"],
+#        "fecha de lanzamiento": aux["wiki"]["published"],
+        "playcount" : aux["playcount"],
+        "listeners" : aux["listeners"],
+#        "info" : aux["wiki"]["sumary"],
+       "cantidadcanciones" : len(list(aux["tracks"])),
+        "foto": aux["image"][3]["#text"],
+  #      "tags" : aux["tags"]["tag"][1]["name"]
     }
     return resultado
+#title, genre, releaseDate, length, country, released, playcount
 
 
 
