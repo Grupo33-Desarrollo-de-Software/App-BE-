@@ -3,12 +3,9 @@ from django.db import models
 # Create your models here.
 class Album(models.Model):
     title = models.CharField(max_length=100)
-    genre = models.TextChoices("Rock", "Metal", "Pop", "Jazz", "Classical", "Reggae", "Reggaeton", "Rap", "Trap")
+    tags = models.CharField(max_length=100)
     releaseDate = models.DateField()
-    length = models.DurationField()  
-#   cover = models.ImageField(upload_to='album_covers/', null=True, blank=True)
-    country = models.CharField(max_length=50)
-#   rating = models.FloatField()
-    released = models.BooleanField(default=False)
+    length = models.IntegerField()  
+    cover = models.CharField(max_length=300)
     playcount = models.PositiveBigIntegerField(null=True)
 

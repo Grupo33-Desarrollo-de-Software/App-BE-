@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime
 
 API_URL = "http://ws.audioscrobbler.com/2.0/"
 KEY = "490431c7a4b3aa2e25808893a53d2742"
@@ -7,6 +8,7 @@ KEY = "490431c7a4b3aa2e25808893a53d2742"
 def parsearAlbum(album):
     resultado = {
         "titulo": album["name"],
+        "tituloURL": sanitizarURL(album["name"]),
         "artista": album["artist"],
         "foto": album["image"][3]["#text"],
         "mbid" : album["mbid"],
@@ -42,11 +44,12 @@ def tieneFoto(elem):
         return True
     return False
 
-def buscarAlbum(mbid):
+def buscarAlbum(artista, album):
     params = {
         "method": "album.getinfo",
         "api_key": KEY,
-        "mbid": mbid,
+        "artist": artista,
+        "album": desanitizarURL(album),
         "format": "json",
     }
     r = requests.get(API_URL, params=params)
@@ -55,23 +58,39 @@ def buscarAlbum(mbid):
 
 def parsearAlbum2(album):
     aux = album["album"]
+    print(album)
     resultado = {
         "titulo": aux["name"],
         "artista": aux["artist"],
-#        "fecha de lanzamiento": aux["wiki"]["published"],
+        "releaseDate": aux.get("wiki",{}).get("published",''),#[0:11],
         "playcount" : aux["playcount"],
         "listeners" : aux["listeners"],
-#        "info" : aux["wiki"]["sumary"],
-       "cantidadcanciones" : len(list(aux["tracks"])),
+        "info" : aux.get("wiki",{}).get("summary",''),
+       "cantidadcanciones" : len(list(aux["tracks"]["track"])),
         "foto": aux["image"][3]["#text"],
-  #      "tags" : aux["tags"]["tag"][1]["name"]
+        "tags" : parsearTag(aux["tags"]),
+        "duracion" : calcularDuracion(aux["tracks"]["track"])
     }
     return resultado
 #title, genre, releaseDate, length, country, released, playcount
 
+def parsearTag(tags):
+    t = tags.get("tag",None)
+    if t:
+        return t[0]["name"]
+    return ""
 
+def calcularDuracion(track):
+    duracion = 0
+    for x in track:
+        duracion += x.get("duration",0) or 0
+    return duracion//60
 
+def sanitizarURL(string):
+    return string.replace("/","%2F")
 
+def desanitizarURL(string):
+    return string.replace("%2F","/")
 
 ################################ ARTISTA ################################
 def parsearArtista(artista):
