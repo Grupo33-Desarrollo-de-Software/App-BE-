@@ -1,3 +1,17 @@
+<nav>
+    <ul>
+        <li>
+            <a href="/albums/buscar">
+                Buscar album
+            </a>
+        </li>
+        <li>
+            <a href="/artistas/buscar">
+                Buscar artista
+            </a>
+        </li>
+    </ul>
+</nav>
 {% if usuario %}
 <form action="{% url 'logout' %}" method="post">
     {% csrf_token %}
@@ -13,4 +27,3 @@
 <p>{{n.usuario.username}}</p>
 {% endfor %}
 {% endif %}
-

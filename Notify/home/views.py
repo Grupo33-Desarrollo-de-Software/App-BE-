@@ -8,10 +8,6 @@ from usuarios.models import Usuario
 from django.shortcuts import redirect
 from django.contrib.auth import logout
 
-
-
-
-
 # import apiExterna.apiExterna as api
 
 
