@@ -2,9 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from followlists.models import Follow
 from albums.models import Album
-import requests
 from django.template import loader
-import json
 import apiExterna.apiExterna as api
 from datetime import datetime
 from django.shortcuts import redirect
@@ -48,7 +46,7 @@ def seguir(request, artista, album):
             cover = albumParseado["foto"],
             defaults={"playcount": albumParseado["playcount"]}
         )
-        print(album)
+        print("esto funciona")
         Follow.objects.get_or_create(
             usuario = usuario,
             album = album

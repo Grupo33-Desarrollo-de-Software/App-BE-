@@ -56,13 +56,19 @@ def buscarAlbum(artista, album):
     albumJson = r.json()
     return albumJson
 
+def getReleaseDate(aux):
+    r = aux.get("wiki", {}).get("published", '')
+    if len(r) == 0:
+        return None
+    return r[0:11]
+
 def parsearAlbum2(album):
     aux = album["album"]
     print(album)
     resultado = {
         "titulo": aux["name"],
         "artista": aux["artist"],
-        "releaseDate": aux.get("wiki",{}).get("published",''),#[0:11],
+        "releaseDate": getReleaseDate(aux),
         "playcount" : aux["playcount"],
         "listeners" : aux["listeners"],
         "info" : aux.get("wiki",{}).get("summary",''),

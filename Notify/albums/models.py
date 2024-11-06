@@ -4,7 +4,7 @@ from django.db import models
 class Album(models.Model):
     title = models.CharField(max_length=100)
     tags = models.CharField(max_length=100)
-    releaseDate = models.DateField()
+    releaseDate = models.DateField(null=True)
     length = models.IntegerField()  
     cover = models.CharField(max_length=300)
     playcount = models.PositiveBigIntegerField(null=True)
