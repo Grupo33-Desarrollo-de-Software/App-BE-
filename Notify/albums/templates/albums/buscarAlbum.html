@@ -1,0 +1,15 @@
+<form>
+    <input type="text" id="album" name="album"></input>
+    <button>BuscarAlbum</button>
+</form>
+
+{% if resultados %}
+{% for r in resultados %}
+<h2>{{r.titulo}} - {{r.artista}}</h2>
+<p><a href="{% url 'detalle' r.artista r.tituloURL %}">Más información</a></p>
+<p><a href="{% url 'seguir' r.artista r.tituloURL %}">Seguir</a></p>
+<img src="{{r.foto}}">
+{% endfor %}
+{% else %}
+<p>No se encontró ningún álbum</p>
+{% endif %}

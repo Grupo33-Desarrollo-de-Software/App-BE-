@@ -1,3 +1,6 @@
 venv/
-Notify/__pycache__/
+**/__pycache__/
 Notify/db.sqlite3
+pyvenv.cfg
+myenv/
+.venv/
