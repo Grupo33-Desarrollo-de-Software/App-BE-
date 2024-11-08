@@ -56,13 +56,14 @@ def buscarAlbum(artista, album):
     albumJson = r.json()
     return albumJson
 
+
 def getReleaseDate(aux):
     r = aux.get("wiki", {}).get("published", '')
     if len(r) == 0:
         return None
     return r[0:11]
 
-def parsearAlbum2(album):
+def parsearAlbum2(album): # Este parsearAlbum2 es para guardar el album en la bdd
     aux = album["album"]
     print(album)
     resultado = {
@@ -125,6 +126,18 @@ def parsearArtista(artista):
     }
     return resultado
 
+def parsearArtista2(artista):
+    print(artista)
+    aux = artista["artist"]
+    resultado = {
+        "nombre": aux["name"],
+        "foto": aux["image"][3]["#text"],
+        "oyentes": aux["stats"]["listeners"],
+        "reproducciones": aux["stats"]["playcount"],
+        "resumen": aux["bio"]["summary"],
+    }
+    return resultado
+     
 
 def oyentes(artista):
     return int(artista["oyentes"])
@@ -151,3 +164,14 @@ def buscarArtista(nombre):
 #   "foto": "http://www...",
 # }
 # NOTA: solo retorna artistas con fotos
+
+def getArtista(artista):
+    params = {
+        "method" : "artist.getinfo",
+        "api_key": KEY,
+        "artist" : artista,
+        "format" : "json",
+    }
+    r = request.get(API_URL, params=params)
+    artistaJson = r.json()
+    return artistaJson

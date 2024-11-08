@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from followlists.models import Follow
 from albums.models import Album
+from artistas.models import Artista
 from django.template import loader
 import apiExterna.apiExterna as api
 from datetime import datetime
@@ -36,6 +37,17 @@ def getInfo(request, artista, album):
 def seguir(request, artista, album):
         usuario = request.user
         print(usuario)
+       
+        artistaAux = api.buscarArtista(artista)
+        artistaParseado = api.parsearArtista2(artistaAux)
+        artista, _ = Artista.get_or_create(
+            name = artistaParseado["nombre"],
+            image = artistaParseado["foto"],
+            listeners = artistaParseado["oyentes"],
+            plays = artistaParseado["reproducciones"],
+            summary = artistaParseado["resumen"]
+        )
+
         albumAux = api.buscarAlbum(artista, album)
         albumParseado = api.parsearAlbum2(albumAux)
         album, _ = Album.objects.get_or_create(
@@ -44,9 +56,11 @@ def seguir(request, artista, album):
             releaseDate = parsearDuracion(albumParseado),
             length = albumParseado["duracion"],
             cover = albumParseado["foto"],
-            defaults={"playcount": albumParseado["playcount"]}
+            defaults={"playcount": albumParseado["playcount"]},
+            autor = artista
         )
-        print("esto funciona")
+        
+        #print("esto funciona")
         Follow.objects.get_or_create(
             usuario = usuario,
             album = album
