@@ -41,7 +41,7 @@ def seguir(request, artista, album):
         album, _ = Album.objects.get_or_create(
             title = albumParseado["titulo"],
             tags = albumParseado["tags"],
-            releaseDate = datetime.strptime(albumParseado["releaseDate"],"%d %b %Y"),
+            releaseDate = parsearDuracion(albumParseado),
             length = albumParseado["duracion"],
             cover = albumParseado["foto"],
             defaults={"playcount": albumParseado["playcount"]}
@@ -53,3 +53,9 @@ def seguir(request, artista, album):
         )
 
         return redirect(request.META.get('HTTP_REFERER'))
+
+def parsearDuracion(albumParseado):
+    if albumParseado.get("releaseDate"):
+        return datetime.strptime(albumParseado["releaseDate"],"%d %b %Y")
+    return None
+

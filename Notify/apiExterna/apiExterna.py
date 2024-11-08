@@ -72,22 +72,39 @@ def parsearAlbum2(album):
         "playcount" : aux["playcount"],
         "listeners" : aux["listeners"],
         "info" : aux.get("wiki",{}).get("summary",''),
-       "cantidadcanciones" : len(list(aux["tracks"]["track"])),
+       "cantidadcanciones" : parsearCantidadCanciones(aux),
         "foto": aux["image"][3]["#text"],
         "tags" : parsearTag(aux["tags"]),
-        "duracion" : calcularDuracion(aux["tracks"]["track"])
+        "duracion" : calcularDuracion(aux)
     }
     return resultado
 #title, genre, releaseDate, length, country, released, playcount
 
+def parsearCantidadCanciones(aux):
+    t = aux.get("tracks",[])
+    if t:
+        return len(list(t["track"]))
+    return 0
+
 def parsearTag(tags):
+    if not tags:
+        return ""
     t = tags.get("tag",None)
     if t:
         return t[0]["name"]
     return ""
 
-def calcularDuracion(track):
+def calcularDuracion(aux):
     duracion = 0
+    t = aux.get("tracks",[])
+    if not t:
+        return 0
+    track = t.get("track")
+    if not track:
+        return 0
+    if type(track) == dict:
+        return track["duration"]//60
+
     for x in track:
         duracion += x.get("duration",0) or 0
     return duracion//60
