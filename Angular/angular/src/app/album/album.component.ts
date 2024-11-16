@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { albumService } from '../album.service';
-import { album } from 'Notify/albums/models.py';
+import { Component, OnInit } from "@angular/core";
+import { albumService } from "../album.service.ts";
+import { album } from "../album.model.ts";
 
 @Component({
-  selector: 'app-albums',
-  templateUrl: './albums.component.html',
-  styleUrls: ['./albums.component.css']
+  selector: "app-albums",
+  templateUrl: "./albums.component.html",
+  styleUrls: ["./albums.component.css"],
 })
 export class albumsComponent implements OnInit {
   albums: album[] = [];
 
-  constructor(private albumService: albumService) { }
+  constructor(private albumService: albumService) {}
 
   ngOnInit(): void {
     this.albumService.getalbums().subscribe((data: album[]) => {
