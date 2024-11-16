@@ -7,6 +7,15 @@ from django.template import loader
 import apiExterna.apiExterna as api
 from datetime import datetime
 from django.shortcuts import redirect
+from rest_framework import viewsets
+from .models import Album
+from .serializers import AlbumSerializer
+
+class AlbumViewSet(viewsets.ModelViewSet):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
+
+######################################################################
 
 def index(request):
     return HttpResponse("Hello, world. You're at the albums index.")
