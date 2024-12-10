@@ -26,7 +26,6 @@ def buscarAlbums(nombre):
     }
     r = requests.get(API_URL, params=params)
     albumsJson = r.json()["results"]["albummatches"]["album"]
-    # print(albumsJson)
     albums = map(parsearAlbum, albumsJson)
     albums = filter(tieneFoto, albums)
     return list(albums)
@@ -52,8 +51,6 @@ def buscarAlbum(artista, album):
         "album": desanitizarURL(album),
         "format": "json",
     }
-    print(params)
-    input()
     r = requests.get(API_URL, params=params)
     albumJson = r.json()
     return albumJson

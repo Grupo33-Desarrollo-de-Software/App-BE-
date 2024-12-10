@@ -36,74 +36,77 @@ def getInfo(request, artista, album):
         return HttpResponse(template.render(context, request))
 
 def seguir(request, artista, album):
-        usuario = request.user
-       
-        artistaAux = api.getArtista(artista)
-        artistaParseado = api.parsearArtista2(artistaAux)
-        artistaObjeto, _ = Artista.objects.get_or_create(
-            name = artistaParseado["nombre"],
-            image = artistaParseado["foto"],
-            listeners = artistaParseado["oyentes"],
-            plays = artistaParseado["reproducciones"],
-            summary = artistaParseado["resumen"]
-        )
+    usuario = request.user
+    
+    artistaAux = api.getArtista(artista)
+    artistaParseado = api.parsearArtista2(artistaAux)
+    artistaObjeto, _ = Artista.objects.get_or_create(
+        name = artistaParseado["nombre"],
+        image = artistaParseado["foto"],
+        listeners = artistaParseado["oyentes"],
+        plays = artistaParseado["reproducciones"],
+        summary = artistaParseado["resumen"]
+    )
 
-        albumAux = api.buscarAlbum(artista, album)
-        albumParseado = api.parsearAlbum2(albumAux)
-        albumObjeto, _ = Album.objects.get_or_create(
-            title = albumParseado["titulo"],
-            tags = albumParseado["tags"],
-            releaseDate = parsearDuracion(albumParseado),
-            length = albumParseado["duracion"],
-            cover = albumParseado["foto"],
-            defaults={"playcount": albumParseado["playcount"]},
-            autor = artistaObjeto
-        )
-        
-        #print("esto funciona")
-        Follow.objects.get_or_create(
-            usuario = usuario,
-            album = albumObjeto
-        )
+    albumAux = api.buscarAlbum(artista, album)
+    albumParseado = api.parsearAlbum2(albumAux)
+    albumObjeto, _ = Album.objects.get_or_create(
+        title = albumParseado["titulo"],
+        tags = albumParseado["tags"],
+        releaseDate = parsearDuracion(albumParseado),
+        length = albumParseado["duracion"],
+        cover = albumParseado["foto"],
+        defaults={"playcount": albumParseado["playcount"]},
+        autor = artistaObjeto
+    )
+    
+    #print("esto funciona")
+    Follow.objects.get_or_create(
+        usuario = usuario,
+        album = albumObjeto
+    )
 
-        return redirect(request.META.get('HTTP_REFERER'))
+    return redirect(request.META.get('HTTP_REFERER'))
 
 def calificar(request, artista, album):
-        usuario = request.user
-       
-        artistaAux = api.getArtista(artista)
-        artistaParseado = api.parsearArtista2(artistaAux)
-        artistaObjeto, _ = Artista.objects.get_or_create(
-            name = artistaParseado["nombre"],
-            image = artistaParseado["foto"],
-            listeners = artistaParseado["oyentes"],
-            plays = artistaParseado["reproducciones"],
-            summary = artistaParseado["resumen"]
-        )
+    usuario = request.user
+    
+    artistaAux = api.getArtista(artista)
+    artistaParseado = api.parsearArtista2(artistaAux)
+    artistaObjeto, _ = Artista.objects.get_or_create(
+        name = artistaParseado["nombre"],
+        image = artistaParseado["foto"],
+        listeners = artistaParseado["oyentes"],
+        plays = artistaParseado["reproducciones"],
+        summary = artistaParseado["resumen"]
+    )
 
-        albumAux = api.buscarAlbum(artista, album)
-        albumParseado = api.parsearAlbum2(albumAux)
-        albumObjeto, _ = Album.objects.get_or_create(
-            title = albumParseado["titulo"],
-            tags = albumParseado["tags"],
-            releaseDate = parsearDuracion(albumParseado),
-            length = albumParseado["duracion"],
-            cover = albumParseado["foto"],
-            defaults={"playcount": albumParseado["playcount"]},
-            autor = artistaObjeto
-        )
-        
-        #print("esto funciona")
-        rate = request.POST["rate"]
-        comment = request.POST["comment"]
-        Rate.objects.get_or_create(
-            usuario = usuario,
-            album = albumObjeto,
-            rate = rate,
-            comment = comment
-        )
+    albumAux = api.buscarAlbum(artista, album)
+    albumParseado = api.parsearAlbum2(albumAux)
+    albumObjeto, _ = Album.objects.get_or_create(
+        title = albumParseado["titulo"],
+        tags = albumParseado["tags"],
+        releaseDate = parsearDuracion(albumParseado),
+        length = albumParseado["duracion"],
+        cover = albumParseado["foto"],
+        defaults={"playcount": albumParseado["playcount"]},
+        autor = artistaObjeto
+    )
+    
+    rate = request.POST["rate"]
+    comment = request.POST["comment"]
 
-        return redirect(request.META.get('HTTP_REFERER'))
+    rateObject, _ = Rate.objects.get_or_create(
+        usuario = usuario,
+        album = albumObjeto,
+        defaults={"rate": rate, "comment": comment}
+    )
+
+    rateObject.comment = comment
+    rateObject.rate = rate
+    rateObject.save()
+
+    return redirect(request.META.get('HTTP_REFERER'))
 
 def parsearDuracion(albumParseado):
     if albumParseado.get("releaseDate"):
