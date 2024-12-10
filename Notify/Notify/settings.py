@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "followlists.apps.FollowlistsConfig",
     "albums.apps.AlbumsConfig",
     "artistas.apps.ArtistasConfig",
+    "calificaciones.apps.CalificacionesConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

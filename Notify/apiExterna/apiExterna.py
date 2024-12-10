@@ -52,6 +52,8 @@ def buscarAlbum(artista, album):
         "album": desanitizarURL(album),
         "format": "json",
     }
+    print(params)
+    input()
     r = requests.get(API_URL, params=params)
     albumJson = r.json()
     return albumJson
@@ -65,7 +67,6 @@ def getReleaseDate(aux):
 
 def parsearAlbum2(album): # Este parsearAlbum2 es para guardar el album en la bdd
     aux = album["album"]
-    print(album)
     resultado = {
         "titulo": aux["name"],
         "artista": aux["artist"],
@@ -127,7 +128,6 @@ def parsearArtista(artista):
     return resultado
 
 def parsearArtista2(artista):
-    print(artista)
     aux = artista["artist"]
     resultado = {
         "nombre": aux["name"],
@@ -172,6 +172,6 @@ def getArtista(artista):
         "artist" : artista,
         "format" : "json",
     }
-    r = request.get(API_URL, params=params)
+    r = requests.get(API_URL, params=params)
     artistaJson = r.json()
     return artistaJson

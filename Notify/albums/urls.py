@@ -6,4 +6,5 @@ urlpatterns = [
     path("buscar", views.getAlbum, name="getAlbum"),
     path("detalle/<str:artista>/<str:album>", views.getInfo, name="detalle"),
     path("follow/<str:artista>/<str:album>", views.seguir, name="seguir"),
+    path("calificar/<str:artista>/<str:album>", views.calificar, name="calificar"),
 ]

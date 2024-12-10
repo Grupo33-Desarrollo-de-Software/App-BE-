@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from followlists.models import Follow
+from calificaciones.models import Rate
 from albums.models import Album
 from artistas.models import Artista
 from django.template import loader
@@ -36,11 +37,10 @@ def getInfo(request, artista, album):
 
 def seguir(request, artista, album):
         usuario = request.user
-        print(usuario)
        
-        artistaAux = api.buscarArtista(artista)
+        artistaAux = api.getArtista(artista)
         artistaParseado = api.parsearArtista2(artistaAux)
-        artista, _ = Artista.get_or_create(
+        artistaObjeto, _ = Artista.objects.get_or_create(
             name = artistaParseado["nombre"],
             image = artistaParseado["foto"],
             listeners = artistaParseado["oyentes"],
@@ -50,20 +50,57 @@ def seguir(request, artista, album):
 
         albumAux = api.buscarAlbum(artista, album)
         albumParseado = api.parsearAlbum2(albumAux)
-        album, _ = Album.objects.get_or_create(
+        albumObjeto, _ = Album.objects.get_or_create(
             title = albumParseado["titulo"],
             tags = albumParseado["tags"],
             releaseDate = parsearDuracion(albumParseado),
             length = albumParseado["duracion"],
             cover = albumParseado["foto"],
             defaults={"playcount": albumParseado["playcount"]},
-            autor = artista
+            autor = artistaObjeto
         )
         
         #print("esto funciona")
         Follow.objects.get_or_create(
             usuario = usuario,
-            album = album
+            album = albumObjeto
+        )
+
+        return redirect(request.META.get('HTTP_REFERER'))
+
+def calificar(request, artista, album):
+        usuario = request.user
+       
+        artistaAux = api.getArtista(artista)
+        artistaParseado = api.parsearArtista2(artistaAux)
+        artistaObjeto, _ = Artista.objects.get_or_create(
+            name = artistaParseado["nombre"],
+            image = artistaParseado["foto"],
+            listeners = artistaParseado["oyentes"],
+            plays = artistaParseado["reproducciones"],
+            summary = artistaParseado["resumen"]
+        )
+
+        albumAux = api.buscarAlbum(artista, album)
+        albumParseado = api.parsearAlbum2(albumAux)
+        albumObjeto, _ = Album.objects.get_or_create(
+            title = albumParseado["titulo"],
+            tags = albumParseado["tags"],
+            releaseDate = parsearDuracion(albumParseado),
+            length = albumParseado["duracion"],
+            cover = albumParseado["foto"],
+            defaults={"playcount": albumParseado["playcount"]},
+            autor = artistaObjeto
+        )
+        
+        #print("esto funciona")
+        rate = request.POST["rate"]
+        comment = request.POST["comment"]
+        Rate.objects.get_or_create(
+            usuario = usuario,
+            album = albumObjeto,
+            rate = rate,
+            comment = comment
         )
 
         return redirect(request.META.get('HTTP_REFERER'))
