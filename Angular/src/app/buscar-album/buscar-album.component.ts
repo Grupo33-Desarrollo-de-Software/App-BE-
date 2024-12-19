@@ -10,14 +10,14 @@ import { ServiceAPI } from "../service-api.service";
 })
 export class BuscarAlbumComponent implements OnInit {
 
-  constructor(private ServiceAPI: ServiceAPI) { }
+  constructor(private serviceAPI: ServiceAPI) { }
 
   ngOnInit(): void {
-    this.ServiceAPI.getServiceAPI(); // antes estaba this.getServiceAPI() pero no lo encontraba.
+    this.getServiceAPI(); // antes estaba this.getServiceAPI() pero no lo encontraba.
   }
 
   getServiceAPI() {
-    this.ServiceAPI.getServiceAPI().subscribe({
+    this.serviceAPI.getServiceAPI().subscribe({
       next: (data) => {
         console.log(data);
       },

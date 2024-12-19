@@ -13,6 +13,6 @@ export class ServiceAPI {
   constructor(private http: HttpClient) { }
 
   getServiceAPI(): Observable<Album> {
-    return this.http.get('http://127.0.0.1:8000/api/v1/questions/') as Observable<Album>;
+    return this.http.get('http://127.0.0.1:8000/api/v1/albums/') as Observable<Album>;
   }
 }

@@ -8,6 +8,9 @@ from django.template import loader
 import apiExterna.apiExterna as api
 from datetime import datetime
 from django.shortcuts import redirect
+from rest_framework import viewsets
+from .serializers import AlbumSerializer
+
 
 def index(request):
     return HttpResponse("Hello, world. You're at the albums index.")
@@ -113,3 +116,7 @@ def parsearDuracion(albumParseado):
         return datetime.strptime(albumParseado["releaseDate"],"%d %b %Y")
     return None
 
+
+class AlbumViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer

@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { BuscarAlbumComponent } from './buscar-album/buscar-album.component';
 //import { HttpClientModule } from "@angular/common/http";
+import { provideHttpClient, withFetch } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { BuscarAlbumComponent } from './buscar-album/buscar-album.component';
     //HttpClientModule,
   ],
   providers: [
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    provideHttpClient(withFetch())
   ],
   bootstrap: [AppComponent]
 })
