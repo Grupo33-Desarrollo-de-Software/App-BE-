@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from requests import Response
 from followlists.models import Follow
 from calificaciones.models import Rate
 from albums.models import Album
@@ -10,6 +11,9 @@ from datetime import datetime
 from django.shortcuts import redirect
 from rest_framework import viewsets
 from .serializers import AlbumSerializer
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 
 def index(request):
@@ -117,6 +121,7 @@ def parsearDuracion(albumParseado):
     return None
 
 
-class AlbumViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Album.objects.all()
-    serializer_class = AlbumSerializer
+@api_view(['GET'])
+def buscarAlbums(request, album):
+    a = api.buscarAlbums(album)
+    return Response(a)
