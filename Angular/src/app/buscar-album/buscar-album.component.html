@@ -1,0 +1,11 @@
+<h1>Búsqueda</h1>
+
+<form>
+  <input type="text" id="album" name="album" [(ngModel)]="busqueda" (ngModelChange)="buscar($event)">
+  <button>Buscar</button>
+</form>
+
+<div *ngFor="let album of albums">
+  <p> {{ album.titulo }} - {{ album.artista }} </p>
+  <img src="{{ album.foto }}">
+</div>
