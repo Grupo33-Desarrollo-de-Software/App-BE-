@@ -79,6 +79,19 @@ def parsearAlbum2(album): # Este parsearAlbum2 es para guardar el album en la bd
     return resultado
 #title, genre, releaseDate, length, country, released, playcount
 
+def parsearAlbum3(album): # Este parsearAlbum3 hacer la busqueda para la API
+    aux = album["album"]
+    resultado = {
+        "title": aux["name"],
+        "autor": aux["artist"],
+        "releaseDate": getReleaseDate(aux),
+        "playcount" : aux["playcount"],
+        "cover": aux["image"][3]["#text"],
+        "tags" : parsearTag(aux["tags"]),
+        "length" : calcularDuracion(aux)
+    }
+    return resultado
+
 def parsearCantidadCanciones(aux):
     t = aux.get("tracks",[])
     if t:

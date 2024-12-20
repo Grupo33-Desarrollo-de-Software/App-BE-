@@ -1,29 +1,29 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
 
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { BuscarAlbumComponent } from './buscar-album/buscar-album.component';
-//import { HttpClientModule } from "@angular/common/http";
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { AppRoutingModule } from "./app-routing.module";
+import { AppComponent } from "./app.component";
+import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
+import { BuscarAlbumComponent } from "./buscar-album/buscar-album.component";
+import { FormsModule } from "@angular/forms";
+import { provideHttpClient, withFetch } from "@angular/common/http";
 
 @NgModule({
   declarations: [
     AppComponent,
-    BuscarAlbumComponent
+    BuscarAlbumComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     MatToolbarModule,
-    //HttpClientModule,
+    FormsModule,
   ],
   providers: [
     provideAnimationsAsync(),
-    provideHttpClient(withFetch())
+    provideHttpClient(withFetch()),
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,23 +1,11 @@
-<p>buscar-album works!</p>
+<h1>Búsqueda</h1>
 
 <form>
-  <input type="text" id="album" name="album"></input>
-  <button>BuscarAlbum</button>
+  <input type="text" id="album" name="album" [(ngModel)]="busqueda" (ngModelChange)="buscar($event)">
+  <button>Buscar</button>
 </form>
 
-<!--{% if resultados %}-->
-<!--{% for r in resultados %}-->
-<!--<h2>{{r.titulo}} - {{r.artista}}</h2>-->
-<!--<p><a href="{% url 'detalle' r.artista r.tituloURL %}">Más información</a></p>-->
-<!--<p><a href="{% url 'seguir' r.artista r.tituloURL %}">Seguir</a></p>-->
-<!--<img src="{{r.foto}}">-->
-<!--<form method="POST" action="{% url 'calificar' r.artista r.tituloURL %}">-->
-<!--  {% csrf_token %}-->
-<!--  <input type="number" name="rate" value="3" min="1" max="5">-->
-<!--  <input type="text" name="comment">-->
-<!--  <input type="submit" value="Calificar">-->
-<!--</form>-->
-<!--{% endfor %}-->
-<!--{% else %}-->
-<!--<p>No se encontró ningún álbum</p>-->
-<!--{% endif %}-->
+<div *ngFor="let album of albums">
+  <p> {{ album.titulo }} - {{ album.artista }} </p>
+  <img src="{{ album.foto }}">
+</div>
