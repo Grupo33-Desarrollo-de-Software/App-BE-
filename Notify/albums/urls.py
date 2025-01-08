@@ -9,4 +9,5 @@ urlpatterns = [
     # path("calificar/<str:artista>/<str:album>", views.calificar, name="calificar"),
     # path("", views.buscarAlbums),
     path("albums/<str:album>", views.buscarAlbums, name="albums"),
+    path("album/<str:artista>/<str:album>", views.getInfo, name="info")
 ]

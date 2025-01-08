@@ -42,38 +42,38 @@ def getInfo(request, artista, album):
         template = loader.get_template("albums/masinfo.html")
         return HttpResponse(template.render(context, request))
 
-def seguir(request, artista, album):
-    usuario = request.user
-    
-    artistaAux = api.getArtista(artista)
-    artistaParseado = api.parsearArtista2(artistaAux)
-    artistaObjeto, _ = Artista.objects.get_or_create(
-        name = artistaParseado["nombre"],
-        image = artistaParseado["foto"],
-        listeners = artistaParseado["oyentes"],
-        plays = artistaParseado["reproducciones"],
-        summary = artistaParseado["resumen"]
-    )
-
-    albumAux = api.buscarAlbum(artista, album)
-    albumParseado = api.parsearAlbum2(albumAux)
-    albumObjeto, _ = Album.objects.get_or_create(
-        title = albumParseado["titulo"],
-        tags = albumParseado["tags"],
-        releaseDate = parsearDuracion(albumParseado),
-        length = albumParseado["duracion"],
-        cover = albumParseado["foto"],
-        defaults={"playcount": albumParseado["playcount"]},
-        autor = artistaObjeto
-    )
-    
-    #print("esto funciona")
-    Follow.objects.get_or_create(
-        usuario = usuario,
-        album = albumObjeto
-    )
-
-    return redirect(request.META.get('HTTP_REFERER'))
+# def seguir(request, artista, album):
+#     usuario = request.user
+#
+#     artistaAux = api.getArtista(artista)
+#     artistaParseado = api.parsearArtista2(artistaAux)
+#     artistaObjeto, _ = Artista.objects.get_or_create(
+#         name = artistaParseado["nombre"],
+#         image = artistaParseado["foto"],
+#         listeners = artistaParseado["oyentes"],
+#         plays = artistaParseado["reproducciones"],
+#         summary = artistaParseado["resumen"]
+#     )
+#
+#     albumAux = api.buscarAlbum(artista, album)
+#     albumParseado = api.parsearAlbum2(albumAux)
+#     albumObjeto, _ = Album.objects.get_or_create(
+#         title = albumParseado["titulo"],
+#         tags = albumParseado["tags"],
+#         releaseDate = parsearDuracion(albumParseado),
+#         length = albumParseado["duracion"],
+#         cover = albumParseado["foto"],
+#         defaults={"playcount": albumParseado["playcount"]},
+#         autor = artistaObjeto
+#     )
+#
+#     #print("esto funciona")
+#     Follow.objects.get_or_create(
+#         usuario = usuario
+#         album = albumObjeto
+#     )
+#
+#     return redirect(request.META.get('HTTP_REFERER'))
 
 def calificar(request, artista, album):
     usuario = request.user
@@ -124,4 +124,10 @@ def parsearDuracion(albumParseado):
 @api_view(['GET'])
 def buscarAlbums(request, album):
     a = api.buscarAlbums(album)
+    return Response(a)
+
+@api_view(['GET'])
+def getInfo(request, artista, album):
+    a = api.buscarAlbum(artista, album)
+    a = api.parsearAlbum2(a)
     return Response(a)

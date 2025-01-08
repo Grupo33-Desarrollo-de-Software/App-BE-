@@ -12,6 +12,7 @@ import type { Album } from "../buscar-album.ts";
 export class BuscarAlbumComponent {
   busqueda = "";
   albums: Album[] = [];
+  album: Album = {} as Album;
 
   constructor(private serviceAPI: ServiceAPI) {}
 
@@ -19,8 +20,15 @@ export class BuscarAlbumComponent {
     if (busqueda != "") {
       this.serviceAPI.searchAlbums(busqueda).subscribe((data) => {
         this.albums = data;
-        console.log(this.albums);
       });
     }
+  }
+
+  getInfo(artista: string, album: string) {
+    console.log(album, artista);
+    this.serviceAPI.getInfo(artista, album).subscribe((data) => {
+      this.album = data;
+      console.log(this.album);
+    });
   }
 }
