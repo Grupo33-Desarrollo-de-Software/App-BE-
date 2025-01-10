@@ -19,6 +19,7 @@ export class BuscarAlbumComponent {
   buscar(busqueda: string) {
     if (busqueda != "") {
       this.serviceAPI.searchAlbums(busqueda).subscribe((data) => {
+        this.album = {} as Album;
         this.albums = data;
       });
     }
@@ -30,5 +31,9 @@ export class BuscarAlbumComponent {
       this.album = data;
       console.log(this.album);
     });
+  }
+
+  hayAlbumSeleccionado() {
+    return Object.keys(this.album).length !== 0;
   }
 }
