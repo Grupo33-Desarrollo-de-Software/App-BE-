@@ -92,11 +92,11 @@ def calificar(request, artista, album):
     albumParseado = api.parsearAlbum2(albumAux)
     albumObjeto, _ = Album.objects.get_or_create(
         title = albumParseado["titulo"],
-        tags = albumParseado["tags"],
+        tags = albumParseado["etiquetas"],
         releaseDate = parsearDuracion(albumParseado),
         length = albumParseado["duracion"],
         cover = albumParseado["foto"],
-        defaults={"playcount": albumParseado["playcount"]},
+        defaults={"reproducciones": albumParseado["reproducciones"]},
         autor = artistaObjeto
     )
     
@@ -129,5 +129,4 @@ def buscarAlbums(request, album):
 @api_view(['GET'])
 def getInfo(request, artista, album):
     a = api.buscarAlbum(artista, album)
-    a = api.parsearAlbum2(a)
     return Response(a)

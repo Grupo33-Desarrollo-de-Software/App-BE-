@@ -8,7 +8,6 @@ KEY = "490431c7a4b3aa2e25808893a53d2742"
 def parsearAlbum(album):
     resultado = {
         "titulo": album["name"],
-        "tituloURL": sanitizarURL(album["name"]),
         "artista": album["artist"],
         "foto": album["image"][3]["#text"],
         "mbid" : album["mbid"],
@@ -53,7 +52,7 @@ def buscarAlbum(artista, album):
     }
     r = requests.get(API_URL, params=params)
     albumJson = r.json()
-    return albumJson
+    return parsearAlbum2(albumJson)
 
 
 def getReleaseDate(aux):
@@ -67,13 +66,13 @@ def parsearAlbum2(album): # Este parsearAlbum2 es para guardar el album en la bd
     resultado = {
         "titulo": aux["name"],
         "artista": aux["artist"],
-        "releaseDate": getReleaseDate(aux),
-        "playcount" : aux["playcount"],
-        "listeners" : aux["listeners"],
+        "fechaLanzamiento": getReleaseDate(aux),
+        "reproducciones" : aux["playcount"],
+        "oyentes" : aux["listeners"],
         "info" : aux.get("wiki",{}).get("summary",''),
-       "cantidadcanciones" : parsearCantidadCanciones(aux),
+        "cantidadCanciones" : parsearCantidadCanciones(aux),
         "foto": aux["image"][3]["#text"],
-        "tags" : parsearTag(aux["tags"]),
+        "etiquetas" : parsearTag(aux["tags"]),
         "duracion" : calcularDuracion(aux)
     }
     return resultado
