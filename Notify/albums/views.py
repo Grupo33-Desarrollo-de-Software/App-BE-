@@ -106,12 +106,13 @@ def persistirAlbum(artista,album):
     albumObjeto, _ = Album.objects.get_or_create(
         title = album["titulo"],
         tags = album["etiquetas"],
-        releaseDate = album["fechaLanzamiento"],
+        releaseDate = datetime.strptime(album["fechaLanzamiento"], "%d %b %Y"),
         length = album["duracion"],
         cover = album["foto"],
         defaults={"playcount": album["reproducciones"]},
         autor = artistaObjeto
     )
+    return artistaObjeto, albumObjeto
 
 @api_view(['GET'])
 def getInfo(request, artista, album):
@@ -119,3 +120,26 @@ def getInfo(request, artista, album):
     persistirAlbum(artista, a)
     return Response(a)
 
+@api_view(['GET'])
+def seguir(request, artista, album):
+    usuario = request.user
+    if usuario == None:
+        return Response({ "error": "Login required"})
+    a = api.buscarAlbum(artista, album)
+    _, album = persistirAlbum(artista, a)
+    Follow.objects.get_or_create(usuario=usuario, album=album)
+
+    return Response({"success": "Followed successfully"})
+
+@api_view(['GET'])
+def dejarDeSeguir(request, artista, album):
+
+    usuario = request.user
+    if usuario == None:
+        return Response({ "error": "Login required"})
+    a = api.buscarAlbum(artista, album)
+    _, album = persistirAlbum(artista, a)
+    f, _ = Follow.objects.get_or_create(usuario=usuario, album=album)
+    f.delete()
+
+    return Response({"success": "Unfollowed successfully"})

@@ -17,6 +17,5 @@ def mostrarFL(request, nombreUsuario):
         albumAux = Album.objects.filter(id = f.album.id).first()
         s = AlbumSerializer(albumAux)
         listaAlbumes.append(s.data)
-        break
     return  Response(listaAlbumes)
 
