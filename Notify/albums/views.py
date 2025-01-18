@@ -42,39 +42,6 @@ def getInfo(request, artista, album):
         template = loader.get_template("albums/masinfo.html")
         return HttpResponse(template.render(context, request))
 
-# def seguir(request, artista, album):
-#     usuario = request.user
-#
-#     artistaAux = api.getArtista(artista)
-#     artistaParseado = api.parsearArtista2(artistaAux)
-#     artistaObjeto, _ = Artista.objects.get_or_create(
-#         name = artistaParseado["nombre"],
-#         image = artistaParseado["foto"],
-#         listeners = artistaParseado["oyentes"],
-#         plays = artistaParseado["reproducciones"],
-#         summary = artistaParseado["resumen"]
-#     )
-#
-#     albumAux = api.buscarAlbum(artista, album)
-#     albumParseado = api.parsearAlbum2(albumAux)
-#     albumObjeto, _ = Album.objects.get_or_create(
-#         title = albumParseado["titulo"],
-#         tags = albumParseado["tags"],
-#         releaseDate = parsearDuracion(albumParseado),
-#         length = albumParseado["duracion"],
-#         cover = albumParseado["foto"],
-#         defaults={"playcount": albumParseado["playcount"]},
-#         autor = artistaObjeto
-#     )
-#
-#     #print("esto funciona")
-#     Follow.objects.get_or_create(
-#         usuario = usuario
-#         album = albumObjeto
-#     )
-#
-#     return redirect(request.META.get('HTTP_REFERER'))
-
 def calificar(request, artista, album):
     usuario = request.user
     
@@ -126,7 +93,29 @@ def buscarAlbums(request, album):
     a = api.buscarAlbums(album)
     return Response(a)
 
+def persistirAlbum(artista,album):
+    artistaAux = api.getArtista(artista)
+    artistaParseado = api.parsearArtista2(artistaAux)
+    artistaObjeto, _ = Artista.objects.get_or_create(
+        name = artistaParseado["nombre"],
+        image = artistaParseado["foto"],
+        listeners = artistaParseado["oyentes"],
+        plays = artistaParseado["reproducciones"],
+        summary = artistaParseado["resumen"]
+    )
+    albumObjeto, _ = Album.objects.get_or_create(
+        title = album["titulo"],
+        tags = album["etiquetas"],
+        releaseDate = album["fechaLanzamiento"],
+        length = album["duracion"],
+        cover = album["foto"],
+        defaults={"playcount": album["reproducciones"]},
+        autor = artistaObjeto
+    )
+
 @api_view(['GET'])
 def getInfo(request, artista, album):
     a = api.buscarAlbum(artista, album)
+    persistirAlbum(artista, a)
     return Response(a)
+

@@ -7,13 +7,7 @@ from notificaciones.models import Notificacion
 from usuarios.models import Usuario
 from django.shortcuts import redirect
 from django.contrib.auth import logout
-
-
-
-
-
 # import apiExterna.apiExterna as api
-
 
 def index(request):
     if request.user.is_authenticated:
@@ -24,7 +18,6 @@ def index(request):
         notificaciones = Notificacion.objects.filter(usuario=usuario)
         context = {"notificaciones": notificaciones, "usuario": usuario}
         return HttpResponse(template.render(context, request))
-
 
 def crearNotificacion(request):
     usuario = Usuario.objects.get(username="maxi")
