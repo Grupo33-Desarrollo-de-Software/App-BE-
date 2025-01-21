@@ -94,6 +94,7 @@ def buscarAlbums(request, album):
     return Response(a)
 
 def persistirAlbum(artista,album):
+    fechaLanzamiento = "01 Jan 0001"
     artistaAux = api.getArtista(artista)
     artistaParseado = api.parsearArtista2(artistaAux)
     artistaObjeto, _ = Artista.objects.get_or_create(
@@ -103,10 +104,12 @@ def persistirAlbum(artista,album):
         plays = artistaParseado["reproducciones"],
         summary = artistaParseado["resumen"]
     )
+    if album["fechaLanzamiento"]:
+        fechaLanzamiento = album["fechaLanzamiento"]
     albumObjeto, _ = Album.objects.get_or_create(
         title = album["titulo"],
         tags = album["etiquetas"],
-        releaseDate = datetime.strptime(album["fechaLanzamiento"], "%d %b %Y"),
+        releaseDate = datetime.strptime(fechaLanzamiento, "%d %b %Y"),
         length = album["duracion"],
         cover = album["foto"],
         defaults={"playcount": album["reproducciones"]},
