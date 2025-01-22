@@ -31,6 +31,8 @@ router = DefaultRouter()
 router.register(r'users', UserViewSet)
 
 urlpatterns = [
+    path("", include("login.urls")),
+    path("home/", include("home.urls")),
     path("buscar", getAlbum, name="getAlbum"),
     path(r'admin/', admin.site.urls),
     path('api/v1/', include('albums.urls')),

@@ -15,17 +15,25 @@ def index(request):
         usuario = request.user
         if usuario.is_superuser:
           return redirect("/admin")
-        notificaciones = Notificacion.objects.filter(usuario=usuario)
+        notificaciones = Notificacion.objects.filter(usuario=usuario).filter(leida=False)
+
         context = {"notificaciones": notificaciones, "usuario": usuario}
         return HttpResponse(template.render(context, request))
 
-def crearNotificacion(request):
-    usuario = Usuario.objects.get(username="maxi")
+def crearNotificacion(request, titulo, cuerpo):
+    usuario = request.user
     notificacion = Notificacion.objects.create(
-        titulo="Bienvenido", cuerpo="Holaa amigo, bienvenido a Notify", usuario=usuario
+        titulo=titulo, cuerpo=cuerpo, usuario=usuario,
     )
     return redirect("/home/")
 
 def logout_view(request):
     logout(request)
     return redirect("/")
+
+def leerNotificacion(request, notificacionId):
+    notificacion = Notificacion.objects.get(id=notificacionId)
+    notificacion.leida = True
+    notificacion.save()
+    
+    return redirect("/home/")

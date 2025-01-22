@@ -11,6 +11,9 @@ from datetime import datetime
 from django.shortcuts import redirect
 from rest_framework import viewsets
 from .serializers import AlbumSerializer
+from notificaciones.views import crearNotificacion
+from urllib.parse import urlparse
+from apiExterna.apiExterna import sanitizarURL
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -33,7 +36,7 @@ def getAlbum(request):
     
 def getInfo(request, artista, album):
     try:
-        albumAux = api.buscarAlbum(artista, album)
+        albumAux = api.buscarAlbum(sanitizarURL(artista), sanitizarURL(album))
         resultado = api.parsearAlbum2(albumAux)
         context = {"resultado": resultado}
     except:
@@ -131,6 +134,8 @@ def seguir(request, artista, album):
     a = api.buscarAlbum(artista, album)
     _, album = persistirAlbum(artista, a)
     Follow.objects.get_or_create(usuario=usuario, album=album)
+    crearNotificacion(usuario, "Seguido con éxito", f"Has seguido con éxito el album {album.title} de {album.autor}")
+    
 
     return Response({"success": "Followed successfully"})
 

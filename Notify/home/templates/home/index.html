@@ -10,7 +10,6 @@
 {% for n in notificaciones %}
 <h2>{{n.titulo}}</h2>
 <p>{{n.cuerpo}}</p>
-<p>{{n.usuario.username}}</p>
+<p><a href="{% url 'leer' n.id %}">Leído</a></p>
 {% endfor %}
 {% endif %}
-
