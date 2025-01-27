@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
+from notificaciones.views import recomendarAlbums
 
 
 def index(request):
@@ -15,6 +16,7 @@ def index(request):
         user = authenticate(username=username, password=password)
         if user is not None:
             login(request, user)
+            recomendarAlbums(user)
             return redirect("/home")
         else:
             return redirect("")

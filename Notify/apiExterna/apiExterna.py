@@ -184,3 +184,41 @@ def getArtista(artista):
     r = requests.get(API_URL, params=params)
     artistaJson = r.json()
     return artistaJson
+
+
+# Retorna una lista de nombres de artistas similares
+def getArtistaSimilar(artista):
+    params = {
+        "method" : "artist.getsimilar",
+        "api_key": KEY,
+        "artist" : artista,
+        "format" : "json",
+    }
+    r = requests.get(API_URL, params=params)
+    similarJSON = r.json()
+
+    lista = []
+
+    contador = 0
+
+    for artist in similarJSON["similarartists"]["artist"]:
+        lista.append(artist["name"])
+        contador += 1
+        if contador > 4:
+            break
+
+    return lista
+
+# retorna una lista de albums similares a los que hace el artista
+# lo hace con el mismo formato que buscarAlbums
+def getAlbumsSimilares(artista):
+    artistasSimilares = getArtistaSimilar(artista)
+
+    similares = []
+
+    for nombreArtista in artistasSimilares:
+        encontrados = buscarAlbums(nombreArtista)
+        similares.extend(encontrados)
+
+    return similares
+
