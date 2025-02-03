@@ -57,20 +57,19 @@ def calificar(request, artista, album):
     artistaObjeto, _ = Artista.objects.get_or_create(
         name = artistaParseado["nombre"],
         image = artistaParseado["foto"],
-        listeners = artistaParseado["oyentes"],
-        plays = artistaParseado["reproducciones"],
-        summary = artistaParseado["resumen"]
+        summary = artistaParseado["resumen"],
+        defaults = {"listeners": artistaParseado["oyentes"],
+                    "plays": artistaParseado["reproducciones"]},
     )
 
-    albumAux = api.buscarAlbum(artista, album)
-    albumParseado = api.parsearAlbum2(albumAux)
+    albumParseado = api.buscarAlbum(artista, album)
     albumObjeto, _ = Album.objects.get_or_create(
         title = albumParseado["titulo"],
         tags = albumParseado["etiquetas"],
         releaseDate = parsearDuracion(albumParseado),
         length = albumParseado["duracion"],
         cover = albumParseado["foto"],
-        defaults={"reproducciones": albumParseado["reproducciones"]},
+        defaults={"playcount": albumParseado["reproducciones"]},
         autor = artistaObjeto
     )
     
@@ -129,7 +128,7 @@ def persistirAlbum(artista,album):
         defaults={"playcount": album["reproducciones"]},
         autor = artistaObjeto
     )
-    l.info(f"El album {album.title} fue agregado a la base de datos.")
+    l.info(f"El album {album["titulo"]} fue agregado a la base de datos.")
     return artistaObjeto, albumObjeto
 
 @api_view(['GET'])
