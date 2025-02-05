@@ -8,10 +8,12 @@ from rest_framework.authtoken.models import Token
 class Usuario(AbstractUser):
     bio = models.TextField(blank=True)
     foto = models.ImageField(blank=True)
+    notifPorMail = models.BooleanField(default=True,blank=False)
+    notifRecomendaciones = models.BooleanField(default=True,blank=False)
+    notifGenerales = models.BooleanField(default=True,blank=False)
 
     def __str__(self):
         return self.username
-    preferenciaNotificacion = models.TextChoices("mismoArtista", "similares")
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
