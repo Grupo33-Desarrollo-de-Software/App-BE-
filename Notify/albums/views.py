@@ -113,9 +113,8 @@ def persistirAlbum(artista,album):
     artistaObjeto, _ = Artista.objects.get_or_create(
         name = artistaParseado["nombre"],
         image = artistaParseado["foto"],
-        listeners = artistaParseado["oyentes"],
-        plays = artistaParseado["reproducciones"],
-        summary = artistaParseado["resumen"]
+        summary = artistaParseado["resumen"],
+        defaults={"listeners": artistaParseado["oyentes"], "plays": artistaParseado["reproducciones"]},
     )
     if album["fechaLanzamiento"]:
         fechaLanzamiento = album["fechaLanzamiento"]
@@ -152,7 +151,7 @@ def seguir(request, artista, album):
     a = api.buscarAlbum(artista, album)
     _, album = persistirAlbum(artista, a)
     Follow.objects.get_or_create(usuario=usuario, album=album)
-    crearNotificacion(usuario, "Seguido con éxito", f"Has seguido con éxito el album {album.title} de {album.autor}")
+    crearNotificacion(usuario, "Seguido con éxito", f"Has seguido con éxito el album {album.title} de {album.autor.name}")
     
     l.info(f"el usuario {usuario.username} siguió el album {album.title}")
     return Response({"success": "Followed successfully"})

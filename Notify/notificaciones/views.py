@@ -6,15 +6,27 @@ from notificaciones.models import Notificacion
 from followlists.models import Follow
 from albums.models import Album
 from artistas.models import Artista
+from django.core.mail import send_mail
 
 # Create your views here.
 
 def crearNotificacion(usuario, titulo, cuerpo):
+    if usuario.notifPorMail and usuario.email:
+        send_mail(
+             titulo,
+             cuerpo,
+             "notifymusic33@gmail.com",
+             [usuario.email],
+             fail_silently=False
+        )
     notificacion = Notificacion.objects.create(
         titulo=titulo, cuerpo=cuerpo, usuario=usuario,
     )
 
 def recomendarAlbums(usuario):
+    if not usuario.notifRecomendaciones:
+        return
+
     follows = Follow.objects.filter(usuario=usuario.id)
     albums = []
     for f in follows:
