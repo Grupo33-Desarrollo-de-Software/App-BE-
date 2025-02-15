@@ -7,6 +7,8 @@ from followlists.models import Follow
 from albums.models import Album
 from artistas.models import Artista
 from django.core.mail import send_mail
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 # Create your views here.
 
@@ -57,3 +59,14 @@ def recomendarAlbums(usuario):
         cuerpo += f"{r["titulo"]} - {r["artista"]}<br/>"
 
     crearNotificacion(usuario, titulo, cuerpo)
+
+@api_view(['GET'])
+def configuracion_notificaciones(request):
+
+    usuario = request.user
+    if usuario == None:
+        return Response({ "error": "Login required"})
+
+
+    l.info(f"el usuario {usuario.username} cambió sus preferencias de notificaciones")
+    return Response({"success": "Unfollowed successfully"})

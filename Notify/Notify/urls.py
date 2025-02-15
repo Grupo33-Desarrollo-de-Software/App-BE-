@@ -37,6 +37,7 @@ urlpatterns = [
     path(r'admin/', admin.site.urls),
     path('api/v1/', include('albums.urls')),
     path('api/v1/', include('followlists.urls')),
+    path('api/v1/', include('usuarios.urls')),
     path('api/v1/', include(router.urls)),
     path('api-user-login/', UserLogIn.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
