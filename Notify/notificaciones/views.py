@@ -6,15 +6,29 @@ from notificaciones.models import Notificacion
 from followlists.models import Follow
 from albums.models import Album
 from artistas.models import Artista
+from django.core.mail import send_mail
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 # Create your views here.
 
 def crearNotificacion(usuario, titulo, cuerpo):
+    if usuario.notifPorMail and usuario.email:
+        send_mail(
+             titulo,
+             cuerpo,
+             "notifymusic33@gmail.com",
+             [usuario.email],
+             fail_silently=False
+        )
     notificacion = Notificacion.objects.create(
         titulo=titulo, cuerpo=cuerpo, usuario=usuario,
     )
 
 def recomendarAlbums(usuario):
+    if not usuario.notifRecomendaciones:
+        return
+
     follows = Follow.objects.filter(usuario=usuario.id)
     albums = []
     for f in follows:
@@ -45,3 +59,14 @@ def recomendarAlbums(usuario):
         cuerpo += f"{r["titulo"]} - {r["artista"]}<br/>"
 
     crearNotificacion(usuario, titulo, cuerpo)
+
+@api_view(['GET'])
+def configuracion_notificaciones(request):
+
+    usuario = request.user
+    if usuario == None:
+        return Response({ "error": "Login required"})
+
+
+    l.info(f"el usuario {usuario.username} cambió sus preferencias de notificaciones")
+    return Response({"success": "Unfollowed successfully"})

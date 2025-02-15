@@ -4,3 +4,4 @@ Notify/db.sqlite3
 pyvenv.cfg
 myenv/
 .venv/
+Notify/log/
