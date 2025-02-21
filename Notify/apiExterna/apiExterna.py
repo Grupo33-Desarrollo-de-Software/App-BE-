@@ -1,5 +1,7 @@
 import requests
+import time
 from datetime import datetime
+import pprint
 
 API_URL = "http://ws.audioscrobbler.com/2.0/"
 KEY = "490431c7a4b3aa2e25808893a53d2742"
@@ -10,7 +12,7 @@ def parsearAlbum(album):
         "titulo": album["name"],
         "artista": album["artist"],
         "foto": album["image"][3]["#text"],
-        "mbid" : album["mbid"],
+        "mbid" : album.get("mbid"),
     }
     return resultado
 
@@ -102,6 +104,8 @@ def parsearTag(tags):
         return ""
     t = tags.get("tag",None)
     if t:
+        if type(t) is dict:
+            return t["name"]
         return t[0]["name"]
     return ""
 
@@ -114,7 +118,7 @@ def calcularDuracion(aux):
     if not track:
         return 0
     if type(track) == dict:
-        return track["duration"]//60
+        return track.get("duration", 0)//60
 
     for x in track:
         duracion += x.get("duration",0) or 0
@@ -221,4 +225,28 @@ def getAlbumsSimilares(artista):
         similares.extend(encontrados)
 
     return similares
+
+def getTopAlbumsFromArtista(artista):
+    params = {
+        "method" : "artist.gettopalbums",
+        "api_key": KEY,
+        "artist" : artista,
+        "limit"  : 20,
+        "format" : "json",
+    }
+    r = requests.get(API_URL, params=params)
+    topJson = r.json().get("topalbums").get("album")
+    top = map(parsearAlbum, topJson)
+    top = filter(tieneFoto, top)
+    top = list(top)
+
+
+    inicio = time.time()
+    topAlbum = []
+    for a in top:
+        album = buscarAlbum(artista, a["titulo"])
+        topAlbum.append(album)
+    fin = time.time()
+    print(f"el for se tardó: {fin - inicio}")
+    return topAlbum
 
