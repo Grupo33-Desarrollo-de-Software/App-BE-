@@ -11,7 +11,7 @@ from datetime import datetime
 from django.shortcuts import redirect
 from rest_framework import viewsets
 from .serializers import AlbumSerializer
-from notificaciones.views import crearNotificacion
+from notificaciones.actions import crearNotificacion
 from urllib.parse import urlparse
 from apiExterna.apiExterna import sanitizarURL
 

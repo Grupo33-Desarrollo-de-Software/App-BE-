@@ -6,7 +6,6 @@ class NotificacionesConfig(AppConfig):
     name = 'notificaciones'
 
     def ready(self):
-        if settings.DEBUG:
-            from .views import scheduleTaskNotificaciones
-            scheduleTaskNotificaciones()
+        from .views import scheduleTaskNotificaciones
+        scheduleTaskNotificaciones()
         return super().ready()
