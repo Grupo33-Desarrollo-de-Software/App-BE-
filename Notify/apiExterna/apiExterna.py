@@ -247,6 +247,5 @@ def getTopAlbumsFromArtista(artista):
         album = buscarAlbum(artista, a["titulo"])
         topAlbum.append(album)
     fin = time.time()
-    print(f"el for se tardó: {fin - inicio}")
     return topAlbum
 

@@ -9,6 +9,8 @@ from artistas.models import Artista
 from django.core.mail import send_mail
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from .tasks import taskNotificaciones
+from background_task.models import Task
 
 from datetime import datetime, date, timedelta
 
@@ -98,7 +100,7 @@ def nuevoDeArtista(usuario):
     crearNotificacion(usuario, titulo, cuerpo)
 
 @api_view(['GET'])
-def configuracion_notificaciones(request):
+def configuracionNotificaciones(request):
 
     usuario = request.user
     if usuario == None:
@@ -107,3 +109,7 @@ def configuracion_notificaciones(request):
 
     l.info(f"el usuario {usuario.username} cambió sus preferencias de notificaciones")
     return Response({"success": "Unfollowed successfully"})
+
+def scheduleTaskNotificaciones():
+    if not Task.objects.filter(task_name="notificaciones.tasks.taskNotificaciones").exists():
+        taskNotificaciones(repeat=5)
