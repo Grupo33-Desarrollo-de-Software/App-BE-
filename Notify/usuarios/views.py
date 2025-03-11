@@ -9,8 +9,7 @@ from .serializers import UserSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-import logging
-l = logging.getLogger(__name__)
+from logger.views import logCrud
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
@@ -44,22 +43,22 @@ def configurar(request):
     if username:
         oldname = usuario.username
         usuario.username = username
-        l.info(f"El usuario {oldname} cambió su nombre a {username}")
+        logCrud(f"El usuario {oldname} cambió su nombre a {username}")
 
     password = request.data.get("password")
     if password:
         usuario.set_password(password)
-        l.info(f"El usuario {usuario.username} cambió su contraseña")
+        logCrud(f"El usuario {usuario.username} cambió su contraseña")
 
     email = request.data.get("email")
     if email:
         usuario.email = email
-        l.info(f"El usuario {usuario.username} cambió su email a {email}")
+        logCrud(f"El usuario {usuario.username} cambió su email a {email}")
 
     bio = request.data.get("bio")
     if bio:
         usuario.bio = bio
-        l.info(f"El usuario {usuario.username} cambió su bio")
+        logCrud(f"El usuario {usuario.username} cambió su bio")
 
     notificaciones = request.data.get("notificaciones")
     if notificaciones:
@@ -71,7 +70,7 @@ def configurar(request):
         usuario.notifRecomendaciones = notifRecomendaciones
         usuario.notifGenerales = notifGenerales
 
-        l.info(f"El usuario {usuario.username} cambió sus preferencias de notificaciones")
+        logCrud(f"El usuario {usuario.username} cambió sus preferencias de notificaciones")
 
     usuario.save()
 

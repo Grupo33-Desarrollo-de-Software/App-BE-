@@ -24,7 +24,7 @@ LOGGING = {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, "log/info.log"),
+            "filename": os.path.join(BASE_DIR, "log/log.log"),
         },
     },
     "loggers": {
@@ -33,12 +33,7 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
-        "albums": {
-            "handlers": ["file"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        "followlists": {
+        "logger": {
             "handlers": ["file"],
             "level": "INFO",
             "propagate": True,
@@ -72,6 +67,7 @@ INSTALLED_APPS = [
     "albums.apps.AlbumsConfig",
     "artistas.apps.ArtistasConfig",
     "calificaciones.apps.CalificacionesConfig",
+    "logger.apps.LoggerConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -81,9 +77,11 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "rest_framework.authtoken",
+    "background_task",
 ]
 
 MIDDLEWARE = [
+    "logger.middleware.logResponsetimeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
