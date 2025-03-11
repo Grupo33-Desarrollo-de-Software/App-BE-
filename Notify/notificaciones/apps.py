@@ -7,5 +7,5 @@ class NotificacionesConfig(AppConfig):
 
     def ready(self):
         from .views import scheduleTaskNotificaciones
-        scheduleTaskNotificaciones()
+        # scheduleTaskNotificaciones()
         return super().ready()

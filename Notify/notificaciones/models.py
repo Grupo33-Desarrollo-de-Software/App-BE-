@@ -8,5 +8,5 @@ class Notificacion(models.Model):
     titulo = models.CharField(max_length=100)
     cuerpo = models.CharField(max_length=350)
     usuario = models.ForeignKey(modelUsuario.Usuario, on_delete=models.CASCADE)
-    fecha = models.DateField(default=date.today())
+    fecha = models.DateField(auto_now_add=True)
     leida = models.BooleanField(default=False)
