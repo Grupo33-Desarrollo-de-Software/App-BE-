@@ -1,0 +1,24 @@
+<h1>Búsqueda</h1>
+
+<form>
+  <input type="text" id="album" name="album" [(ngModel)]="busqueda" (ngModelChange)="buscar($event)">
+  <button>Buscar</button>
+</form>
+
+<div *ngIf="hayAlbumSeleccionado()">
+  <h1>{{ album.titulo }}</h1>
+  <p> {{album.artista}} </p>
+  <img src="{{album.foto}}">
+  <p> Fecha de Lanzamiento: {{album.fechaLanzamiento}} </p>
+  <p> Reproducciones: {{album.reproducciones}} </p>
+  <p> Oyentes: {{album.oyentes}} </p>
+  <p> Descripción: {{album.info}} </p>
+  <p> Canciones: {{album.cantidadCanciones}} </p>
+</div>
+<div *ngIf="!hayAlbumSeleccionado()">
+  <div *ngFor="let album of albums">
+    <p> {{ album.titulo }} - {{ album.artista }} </p>
+    <img src="{{ album.foto }}">
+    <button (click)="getInfo(album.artista, album.titulo)">Más información</button>
+  </div>
+</div>
