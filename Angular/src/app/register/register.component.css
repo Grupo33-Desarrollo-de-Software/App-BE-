@@ -1,0 +1,93 @@
+.gradient-bg {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.1);
+  animation: float 20s infinite ease-in-out;
+}
+
+.circle-1 {
+  width: 300px;
+  height: 300px;
+  top: -150px;
+  left: -150px;
+  animation-delay: 0s;
+}
+
+.circle-2 {
+  width: 200px;
+  height: 200px;
+  top: 20%;
+  right: -100px;
+  animation-delay: 2s;
+}
+
+.circle-3 {
+  width: 250px;
+  height: 250px;
+  bottom: -125px;
+  left: 10%;
+  animation-delay: 4s;
+}
+
+.circle-4 {
+  width: 180px;
+  height: 180px;
+  top: 60%;
+  right: 15%;
+  animation-delay: 6s;
+}
+
+.circle-5 {
+  width: 220px;
+  height: 220px;
+  bottom: 20%;
+  right: -110px;
+  animation-delay: 8s;
+}
+
+.circle-6 {
+  width: 160px;
+  height: 160px;
+  top: 40%;
+  left: 5%;
+  animation-delay: 10s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.3;
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.1);
+    opacity: 0.5;
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+    opacity: 0.4;
+  }
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+button:disabled {
+  opacity: 0.6;
+}
+

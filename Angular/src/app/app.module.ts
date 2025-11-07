@@ -8,6 +8,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // Importa el componente standalone
 import { BuscarAlbumComponent } from './buscar-album/buscar-album.component';
+import { RegisterComponent } from './register/register.component';
+import { MonitoringComponent } from './monitoring/monitoring.component';
 
 // Importa el módulo de Angular Material
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -23,6 +25,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     BrowserAnimationsModule,
     HttpClientModule, // <-- AÑÁDELO AQUÍ para habilitar HttpClient
     BuscarAlbumComponent, // <-- AÑÁDELO AQUÍ (porque es standalone)
+    RegisterComponent, // <-- AÑÁDELO AQUÍ (porque es standalone)
+    MonitoringComponent, // <-- AÑÁDELO AQUÍ (porque es standalone)
     MatToolbarModule // <-- AÑÁDELO AQUÍ
   ],
   providers: [],

@@ -1,13 +1,12 @@
 from django.contrib.auth.models import AnonymousUser
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 from .models import Usuario
-from .serializers import UserSerializer
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from .serializers import UserSerializer, UserRegistrationSerializer
 
 from logger.views import logCrud
 
@@ -28,6 +27,33 @@ class UserLogIn(ObtainAuthToken):
             'id': user.pk,
             'username': user.username
         })
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register(request):
+    """
+    Register a new user. No authentication required.
+    Supports both JSON and multipart/form-data (for file uploads).
+    """
+    # Handle both JSON and multipart/form-data
+    data = request.data.copy()
+    files = request.FILES
+    
+    serializer = UserRegistrationSerializer(data=data, files=files)
+    if serializer.is_valid():
+        user = serializer.save()
+        token = Token.objects.get(user=user)
+        logCrud(f"New user registered: {user.username}")
+        return Response({
+            'token': token.key,
+            'id': user.pk,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'message': 'User created successfully'
+        }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def configurar(request):

@@ -81,7 +81,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "logger.middleware.logResponsetimeMiddleware",
+    "logger.middleware.APIMonitoringMiddleware",  # Comprehensive API monitoring
+    "logger.middleware.logResponsetimeMiddleware",  # Legacy logging (kept for backward compatibility)
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
