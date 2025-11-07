@@ -3,8 +3,11 @@ import time
 from datetime import datetime
 import pprint
 
+archivo_key = open("apiExterna/key.txt", "r")
+KEY = archivo_key.read().strip()
+
 API_URL = "http://ws.audioscrobbler.com/2.0/"
-KEY = "490431c7a4b3aa2e25808893a53d2742"
+
 
 ################################ ALBUM ################################
 def parsearAlbum(album):
@@ -12,7 +15,7 @@ def parsearAlbum(album):
         "titulo": album["name"],
         "artista": album["artist"],
         "foto": album["image"][3]["#text"],
-        "mbid" : album.get("mbid"),
+        "mbid": album.get("mbid"),
     }
     return resultado
 
@@ -30,6 +33,8 @@ def buscarAlbums(nombre):
     albums = map(parsearAlbum, albumsJson)
     albums = filter(tieneFoto, albums)
     return list(albums)
+
+
 # Retorna una lista de albums de la forma
 # {
 #   "titulo": "Doo-Wops & Hooligans",
@@ -43,6 +48,7 @@ def tieneFoto(elem):
     if elem["foto"]:
         return True
     return False
+
 
 def buscarAlbum(artista, album):
     params = {
@@ -58,77 +64,87 @@ def buscarAlbum(artista, album):
 
 
 def getReleaseDate(aux):
-    r = aux.get("wiki", {}).get("published", '')
+    r = aux.get("wiki", {}).get("published", "")
     if len(r) == 0:
         return None
     return r[0:11]
 
-def parsearAlbum2(album): # Este parsearAlbum2 es para guardar el album en la bdd
+
+def parsearAlbum2(album):  # Este parsearAlbum2 es para guardar el album en la bdd
     aux = album["album"]
     resultado = {
         "titulo": aux["name"],
         "artista": aux["artist"],
         "fechaLanzamiento": getReleaseDate(aux),
-        "reproducciones" : aux["playcount"],
-        "oyentes" : aux["listeners"],
-        "info" : aux.get("wiki",{}).get("summary",''),
-        "cantidadCanciones" : parsearCantidadCanciones(aux),
+        "reproducciones": aux["playcount"],
+        "oyentes": aux["listeners"],
+        "info": aux.get("wiki", {}).get("summary", ""),
+        "cantidadCanciones": parsearCantidadCanciones(aux),
         "foto": aux["image"][3]["#text"],
-        "etiquetas" : parsearTag(aux["tags"]),
-        "duracion" : calcularDuracion(aux)
+        "etiquetas": parsearTag(aux["tags"]),
+        "duracion": calcularDuracion(aux),
     }
     return resultado
-#title, genre, releaseDate, length, country, released, playcount
 
-def parsearAlbum3(album): # Este parsearAlbum3 hacer la busqueda para la API
+
+# title, genre, releaseDate, length, country, released, playcount
+
+
+def parsearAlbum3(album):  # Este parsearAlbum3 hacer la busqueda para la API
     aux = album["album"]
     resultado = {
         "title": aux["name"],
         "autor": aux["artist"],
         "releaseDate": getReleaseDate(aux),
-        "playcount" : aux["playcount"],
+        "playcount": aux["playcount"],
         "cover": aux["image"][3]["#text"],
-        "tags" : parsearTag(aux["tags"]),
-        "length" : calcularDuracion(aux)
+        "tags": parsearTag(aux["tags"]),
+        "length": calcularDuracion(aux),
     }
     return resultado
 
+
 def parsearCantidadCanciones(aux):
-    t = aux.get("tracks",[])
+    t = aux.get("tracks", [])
     if t:
         return len(list(t["track"]))
     return 0
 
+
 def parsearTag(tags):
     if not tags:
         return ""
-    t = tags.get("tag",None)
+    t = tags.get("tag", None)
     if t:
         if type(t) is dict:
             return t["name"]
         return t[0]["name"]
     return ""
 
+
 def calcularDuracion(aux):
     duracion = 0
-    t = aux.get("tracks",[])
+    t = aux.get("tracks", [])
     if not t:
         return 0
     track = t.get("track")
     if not track:
         return 0
     if type(track) == dict:
-        return track.get("duration", 0)//60
+        return track.get("duration", 0) // 60
 
     for x in track:
-        duracion += x.get("duration",0) or 0
-    return duracion//60
+        duracion += x.get("duration", 0) or 0
+    return duracion // 60
+
 
 def sanitizarURL(string):
-    return string.replace("/","%2F")
+    return string.replace("/", "%2F")
+
 
 def desanitizarURL(string):
-    return string.replace("%2F","/")
+    return string.replace("%2F", "/")
+
 
 ################################ ARTISTA ################################
 def parsearArtista(artista):
@@ -140,6 +156,7 @@ def parsearArtista(artista):
     }
     return resultado
 
+
 def parsearArtista2(artista):
     aux = artista["artist"]
     resultado = {
@@ -150,7 +167,7 @@ def parsearArtista2(artista):
         "resumen": aux["bio"]["summary"],
     }
     return resultado
-     
+
 
 def oyentes(artista):
     return int(artista["oyentes"])
@@ -171,6 +188,7 @@ def buscarArtista(nombre):
     artistas.sort(reverse=True, key=oyentes)
     return artistas
 
+
 # Retorna una lista de artistas de la forma
 # {
 #   "nombre": "Bruno Mars",
@@ -178,12 +196,13 @@ def buscarArtista(nombre):
 # }
 # NOTA: solo retorna artistas con fotos
 
+
 def getArtista(artista):
     params = {
-        "method" : "artist.getinfo",
+        "method": "artist.getinfo",
         "api_key": KEY,
-        "artist" : artista,
-        "format" : "json",
+        "artist": artista,
+        "format": "json",
     }
     r = requests.get(API_URL, params=params)
     artistaJson = r.json()
@@ -193,10 +212,10 @@ def getArtista(artista):
 # Retorna una lista de nombres de artistas similares
 def getArtistaSimilar(artista):
     params = {
-        "method" : "artist.getsimilar",
+        "method": "artist.getsimilar",
         "api_key": KEY,
-        "artist" : artista,
-        "format" : "json",
+        "artist": artista,
+        "format": "json",
     }
     r = requests.get(API_URL, params=params)
     similarJSON = r.json()
@@ -213,6 +232,7 @@ def getArtistaSimilar(artista):
 
     return lista
 
+
 # retorna una lista de albums similares a los que hace el artista
 # lo hace con el mismo formato que buscarAlbums
 def getAlbumsSimilares(artista):
@@ -226,20 +246,20 @@ def getAlbumsSimilares(artista):
 
     return similares
 
+
 def getTopAlbumsFromArtista(artista):
     params = {
-        "method" : "artist.gettopalbums",
+        "method": "artist.gettopalbums",
         "api_key": KEY,
-        "artist" : artista,
-        "limit"  : 20,
-        "format" : "json",
+        "artist": artista,
+        "limit": 20,
+        "format": "json",
     }
     r = requests.get(API_URL, params=params)
     topJson = r.json().get("topalbums").get("album")
     top = map(parsearAlbum, topJson)
     top = filter(tieneFoto, top)
     top = list(top)
-
 
     inicio = time.time()
     topAlbum = []
@@ -248,4 +268,3 @@ def getTopAlbumsFromArtista(artista):
         topAlbum.append(album)
     fin = time.time()
     return topAlbum
-

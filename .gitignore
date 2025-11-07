@@ -5,3 +5,4 @@ pyvenv.cfg
 myenv/
 .venv/
 Notify/log/
+Notify/apiExterna/key.txt
