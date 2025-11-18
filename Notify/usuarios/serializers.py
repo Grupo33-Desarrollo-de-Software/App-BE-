@@ -15,7 +15,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = ('username', 'password', 'email', 'first_name', 'last_name', 'bio', 'foto', 
-                  'notifPorEmail', 'notifRecomendaciones', 'notifGenerales')
+                  'notifPorMail', 'notifRecomendaciones', 'notifGenerales')
         extra_kwargs = {
             'password': {'write_only': True},
             'bio': {'required': False, 'allow_blank': True},
@@ -37,8 +37,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'password': 'Password is required'})
         
         # Set default values for notification preferences if not provided
-        if 'notifPorEmail' not in validated_data:
-            validated_data['notifPorEmail'] = True
+        if 'notifPorMail' not in validated_data:
+            validated_data['notifPorMail'] = True
         if 'notifRecomendaciones' not in validated_data:
             validated_data['notifRecomendaciones'] = True
         if 'notifGenerales' not in validated_data:
@@ -62,7 +62,7 @@ class UserSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Usuario
-        fields = ('id', 'username', 'first_name', 'last_name', 'bio', 'foto', 'notifPorEmail',
+        fields = ('id', 'username', 'first_name', 'last_name', 'bio', 'foto', 'notifPorMail',
                   'notifRecomendaciones', 'notifGenerales', 'password')
         read_only_fields = ('username', )
 
