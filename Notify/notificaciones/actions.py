@@ -10,18 +10,22 @@ from datetime import datetime, timedelta
 
 # Create your views here.
 
+
 def crearNotificacion(usuario, titulo, cuerpo):
     if usuario.notifPorMail and usuario.email:
         send_mail(
-             titulo,
-             cuerpo,
-             "notifymusic33@gmail.com",
-             [usuario.email],
-             fail_silently=False
+            titulo,
+            cuerpo,
+            "notifymusic33@gmail.com",
+            [usuario.email],
+            fail_silently=False,
         )
-    notificacion = Notificacion.objects.create(
-        titulo=titulo, cuerpo=cuerpo, usuario=usuario,
-    )
+        notificacion = Notificacion.objects.create(
+            titulo=titulo,
+            cuerpo=cuerpo,
+            usuario=usuario,
+        )
+
 
 def recomendarAlbums(usuario):
     if not usuario.notifRecomendaciones:
@@ -30,11 +34,11 @@ def recomendarAlbums(usuario):
     follows = Follow.objects.filter(usuario=usuario.id)
     albums = []
     for f in follows:
-        a = Album.objects.filter(id = f.album.id).first()
+        a = Album.objects.filter(id=f.album.id).first()
         albums.append(a)
     artistas = []
     for a in albums:
-        artista = Artista.objects.filter(id = a.autor.id).first()
+        artista = Artista.objects.filter(id=a.autor.id).first()
         artistas.append(artista)
 
     # TODO: hacer que solamente recomiende artistas no seguidos
@@ -58,6 +62,7 @@ def recomendarAlbums(usuario):
 
     crearNotificacion(usuario, titulo, cuerpo)
 
+
 def nuevoDeArtista(usuario):
     if not usuario.notifGenerales:
         return
@@ -65,11 +70,11 @@ def nuevoDeArtista(usuario):
     follows = Follow.objects.filter(usuario=usuario.id)
     albums = []
     for f in follows:
-        a = Album.objects.filter(id = f.album.id).first()
+        a = Album.objects.filter(id=f.album.id).first()
         albums.append(a)
     artistas = []
     for a in albums:
-        artista = Artista.objects.filter(id = a.autor.id).first()
+        artista = Artista.objects.filter(id=a.autor.id).first()
         artistas.append(artista)
 
     nuevos = []

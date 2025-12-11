@@ -3,6 +3,7 @@ from .actions import recomendarAlbums, nuevoDeArtista
 from usuarios.models import Usuario
 from followlists.models import Follow
 
+
 @background(schedule=5)
 def taskNotificaciones():
     for u in Usuario.objects.all():

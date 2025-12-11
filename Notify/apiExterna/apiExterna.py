@@ -131,7 +131,7 @@ def calcularDuracion(aux):
     if not track:
         return 0
     if type(track) == dict:
-        return track.get("duration", 0) // 60
+        return (track.get("duration", 0) or 0) // 60
 
     for x in track:
         duracion += x.get("duration", 0) or 0
