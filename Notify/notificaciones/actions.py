@@ -12,6 +12,14 @@ from datetime import datetime, timedelta
 
 
 def crearNotificacion(usuario, titulo, cuerpo):
+    # Siempre crear la notificación en la base de datos
+    notificacion = Notificacion.objects.create(
+        titulo=titulo,
+        cuerpo=cuerpo,
+        usuario=usuario,
+    )
+    
+    # Enviar email solo si el usuario tiene habilitado el envío por mail
     if usuario.notifPorMail and usuario.email:
         send_mail(
             titulo,
@@ -31,68 +39,112 @@ def recomendarAlbums(usuario):
     if not usuario.notifRecomendaciones:
         return
 
-    follows = Follow.objects.filter(usuario=usuario.id)
-    albums = []
-    for f in follows:
-        a = Album.objects.filter(id=f.album.id).first()
-        albums.append(a)
-    artistas = []
-    for a in albums:
-        artista = Artista.objects.filter(id=a.autor.id).first()
-        artistas.append(artista)
 
-    # TODO: hacer que solamente recomiende artistas no seguidos
-    recomendaciones = []
-    for artista in artistas:
-        r = apiExterna.getAlbumsSimilares(artista.name)
-        recomendaciones.extend(r)
+        follows = Follow.objects.filter(usuario=usuario.id)
+        if not follows.exists():
+            return
+            
+        albums = []
+        for f in follows:
+            a = Album.objects.filter(id=f.album.id).first()
+            if a:
+                albums.append(a)
+        
+        if not albums:
+            return
+            
+        artistas = []
+        for a in albums:
+            if a and a.autor:
+                artista = Artista.objects.filter(id=a.autor.id).first()
+                if artista:
+                    artistas.append(artista)
 
-    random.seed()
-    random.shuffle(recomendaciones)
+        if not artistas:
+            return
 
-    try:
-        recomendaciones = recomendaciones[:5]
-    except:
-        pass
+        # TODO: hacer que solamente recomiende artistas no seguidos
+        recomendaciones = []
+        for artista in artistas:
+            try:
+                r = apiExterna.getAlbumsSimilares(artista.name)
+                if r:
+                    recomendaciones.extend(r)
+            except Exception as e:
+                print(f"Error obteniendo álbumes similares para {artista.name}: {e}")
+                continue
 
-    titulo = "Tal vez te gusten los siguientes álbumes 🧐"
-    cuerpo = ""
-    for r in recomendaciones:
-        cuerpo += f"{r["titulo"]} - {r["artista"]}<br/>"
+        if not recomendaciones:
+            return
 
-    crearNotificacion(usuario, titulo, cuerpo)
+        random.seed()
+        random.shuffle(recomendaciones)
+
+        try:
+            recomendaciones = recomendaciones[:5]
+        except:
+            pass
+
+        titulo = "Tal vez te gusten los siguientes álbumes 🧐"
+        cuerpo = ""
+        for r in recomendaciones:
+            cuerpo += f"{r["titulo"]} - {r["artista"]}<br/>"
+
+        crearNotificacion(usuario, titulo, cuerpo)
 
 
 def nuevoDeArtista(usuario):
     if not usuario.notifGenerales:
         return
 
-    follows = Follow.objects.filter(usuario=usuario.id)
-    albums = []
-    for f in follows:
-        a = Album.objects.filter(id=f.album.id).first()
-        albums.append(a)
-    artistas = []
-    for a in albums:
-        artista = Artista.objects.filter(id=a.autor.id).first()
-        artistas.append(artista)
+        follows = Follow.objects.filter(usuario=usuario.id)
+        if not follows.exists():
+            return
+            
+        albums = []
+        for f in follows:
+            a = Album.objects.filter(id=f.album.id).first()
+            if a:
+                albums.append(a)
+        
+        if not albums:
+            return
+            
+        artistas = []
+        for a in albums:
+            if a and a.autor:
+                artista = Artista.objects.filter(id=a.autor.id).first()
+                if artista:
+                    artistas.append(artista)
 
-    nuevos = []
-    for artista in artistas:
-        top = apiExterna.getTopAlbumsFromArtista(artista.name)
-        for album in top:
-            if album["fechaLanzamiento"]:
-                fecha = datetime.strptime(album["fechaLanzamiento"], "%d %b %Y")
-                semanaPasada = datetime.today() - timedelta(days=7)
-                if fecha > semanaPasada:
-                    nuevos.append(album)
+        if not artistas:
+            return
 
-    if not nuevos:
-        return
+        nuevos = []
+        for artista in artistas:
+            try:
+                top = apiExterna.getTopAlbumsFromArtista(artista.name)
+                if top:
+                    for album in top:
+                        try:
+                            if album.get("fechaLanzamiento"):
+                                fecha = datetime.strptime(album["fechaLanzamiento"], "%d %b %Y")
+                                semanaPasada = datetime.today() - timedelta(days=7)
+                                if fecha > semanaPasada:
+                                    nuevos.append(album)
+                        except (ValueError, KeyError) as e:
+                            print(f"Error parseando fecha del álbum: {e}")
+                            continue
+            except Exception as e:
+                print(f"Error obteniendo top álbumes para {artista.name}: {e}")
+                continue
 
-    titulo = "Deberías chequear los nuevos álbumes de tus artistas favoritos!!!"
-    cuerpo = ""
-    for n in nuevos:
-        cuerpo += f"{n["titulo"]} - {n["artista"]}<br/>"
+        if not nuevos:
+            return
 
-    crearNotificacion(usuario, titulo, cuerpo)
+        titulo = "Deberías chequear los nuevos álbumes de tus artistas favoritos!!!"
+        cuerpo = ""
+        for n in nuevos:
+            cuerpo += f"{n["titulo"]} - {n["artista"]}<br/>"
+
+        crearNotificacion(usuario, titulo, cuerpo)

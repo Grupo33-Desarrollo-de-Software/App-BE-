@@ -1,0 +1,15 @@
+{
+  // Configuración para que los enlaces de la terminal se abran en el navegador del sistema
+  "terminal.integrated.openLinksInEditor": false,
+  
+  // Desactivar correctores ortográficos
+  "cSpell.enabled": false,
+  "spellright.language": [],
+  "editor.wordBasedSuggestions": "off",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  }
+}
+
