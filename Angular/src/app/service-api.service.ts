@@ -17,6 +17,8 @@ export interface RegisterRequest {
   notifPorEmail?: boolean;
   notifRecomendaciones?: boolean;
   notifGenerales?: boolean;
+  is_staff?: boolean;
+  is_superuser?: boolean;
 }
 
 export interface RegisterResponse {
@@ -26,7 +28,22 @@ export interface RegisterResponse {
   email?: string;
   first_name?: string;
   last_name?: string;
+  is_staff?: boolean;
+  is_superuser?: boolean;
   message: string;
+}
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  id: number;
+  username: string;
+  is_staff: boolean;
+  is_superuser: boolean;
 }
 
 @Injectable({
@@ -65,9 +82,20 @@ export class ServiceAPI {
     if (userData.notifRecomendaciones !== undefined) formData.append('notifRecomendaciones', userData.notifRecomendaciones.toString());
     if (userData.notifGenerales !== undefined) formData.append('notifGenerales', userData.notifGenerales.toString());
     
+    // Add permission fields if provided (only admins can set these)
+    if (userData.is_staff !== undefined) formData.append('is_staff', userData.is_staff.toString());
+    if (userData.is_superuser !== undefined) formData.append('is_superuser', userData.is_superuser.toString());
+    
     return this.http.post<RegisterResponse>(
       `${backendApi}/usuarios/register`,
       formData
+    );
+  }
+
+  login(credentials: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(
+      `http://127.0.0.1:8000/api-user-login/`,
+      credentials
     );
   }
 }

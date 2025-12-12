@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ServiceAPI, RegisterRequest } from '../service-api.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-register',
@@ -22,9 +23,13 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private apiService: ServiceAPI,
+    private authService: AuthService,
     private router: Router
   ) {
-    this.registerForm = this.fb.group({
+    // Check if current user is admin
+    const isAdmin = this.authService.checkIsAdmin();
+    
+    const formControls: any = {
       username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]],
@@ -35,7 +40,20 @@ export class RegisterComponent {
       notifPorEmail: [true],
       notifRecomendaciones: [true],
       notifGenerales: [true]
-    }, { validators: this.passwordMatchValidator });
+    };
+
+    // Only add permission fields if user is admin
+    if (isAdmin) {
+      formControls.is_staff = [false];
+      formControls.is_superuser = [false];
+    }
+
+    this.registerForm = this.fb.group(formControls, { validators: this.passwordMatchValidator });
+  }
+
+  // Getter to check if current user is admin
+  get isAdmin(): boolean {
+    return this.authService.checkIsAdmin();
   }
 
   passwordMatchValidator(form: FormGroup) {
@@ -140,12 +158,26 @@ export class RegisterComponent {
       notifGenerales: formValue.notifGenerales
     };
 
+    // Only include permission fields if user is admin
+    if (this.isAdmin) {
+      registerData.is_staff = formValue.is_staff || false;
+      registerData.is_superuser = formValue.is_superuser || false;
+    }
+
     this.apiService.register(registerData).subscribe({
       next: (response) => {
         this.isLoading.set(false);
         this.successMessage.set(`Account created successfully! Welcome, ${response.username}!`);
         
-        // Store token in localStorage
+        // Guardar datos del usuario en el servicio de autenticación
+        this.authService.setUser(response.token, {
+          id: response.id,
+          username: response.username,
+          is_staff: response.is_staff || false,
+          is_superuser: response.is_superuser || false
+        });
+
+        // También guardar en localStorage para compatibilidad
         localStorage.setItem('auth_token', response.token);
         localStorage.setItem('user_id', response.id.toString());
         localStorage.setItem('username', response.username);

@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 const backendApi = `http://127.0.0.1:8000/api/v1`;
 
@@ -61,7 +62,8 @@ export class MonitoringComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -69,7 +71,7 @@ export class MonitoringComponent implements OnInit {
   }
 
   getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth_token');
+    const token = this.authService.getToken();
     return new HttpHeaders({
       'Authorization': `Token ${token}`
     });
@@ -78,6 +80,14 @@ export class MonitoringComponent implements OnInit {
   loadMetrics(): void {
     this.isLoading.set(true);
     this.error.set(null);
+
+    const token = this.authService.getToken();
+    if (!token) {
+      this.isLoading.set(false);
+      this.error.set('No se encontró token de autenticación. Por favor, inicia sesión.');
+      this.router.navigate(['/login']);
+      return;
+    }
 
     const headers = this.getAuthHeaders();
     const hours = this.selectedHours();
@@ -92,13 +102,36 @@ export class MonitoringComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
+        console.error('Monitoring dashboard error:', err);
+        console.error('Error details:', {
+          status: err.status,
+          statusText: err.statusText,
+          error: err.error,
+          message: err.message,
+          url: err.url
+        });
+        
         if (err.status === 403) {
-          this.error.set('Access denied. Admin privileges required.');
+          this.error.set('Acceso denegado. Se requieren privilegios de administrador. Asegúrate de que tu usuario tenga is_staff=True o is_superuser=True.');
         } else if (err.status === 401) {
-          this.error.set('Authentication required. Please log in.');
-          this.router.navigate(['/login']);
+          this.error.set('Autenticación requerida. Por favor, inicia sesión nuevamente.');
+          this.authService.logout();
+        } else if (err.status === 0) {
+          this.error.set('No se puede conectar al servidor. Asegúrate de que el backend esté ejecutándose en http://127.0.0.1:8000');
+        } else if (err.status === 404) {
+          this.error.set('Endpoint de monitoreo no encontrado. Por favor, verifica la configuración del backend.');
+        } else if (err.status === 500) {
+          const detail = err.error?.detail || err.error?.error || 'Error interno del servidor';
+          this.error.set(`Error del servidor: ${detail}. Revisa los logs del backend para más detalles.`);
+        } else if (err.error && err.error.detail) {
+          this.error.set(`Error: ${err.error.detail}`);
+        } else if (err.error && typeof err.error === 'string') {
+          this.error.set(`Error: ${err.error}`);
+        } else if (err.error && err.error.error) {
+          this.error.set(`Error: ${err.error.error}`);
         } else {
-          this.error.set('Failed to load monitoring data. Please try again.');
+          const errorMsg = err.message || `HTTP ${err.status || 'Desconocido'}`;
+          this.error.set(`Error al cargar datos de monitoreo: ${errorMsg}. Por favor, revisa la consola para más detalles.`);
         }
       }
     });
@@ -124,7 +157,7 @@ export class MonitoringComponent implements OnInit {
   }
 
   formatNumber(num: number): string {
-    return num.toLocaleString();
+    return num.toLocaleString('es-ES');
   }
 
   formatTime(ms: number): string {

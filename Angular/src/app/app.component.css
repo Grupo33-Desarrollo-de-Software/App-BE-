@@ -1,0 +1,35 @@
+.active {
+  background-color: rgba(29, 185, 84, 0.2) !important;
+  color: #1DB954 !important;
+}
+
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #000000 !important;
+}
+
+/* Estilos para los botones de Material en la toolbar */
+mat-toolbar button.mat-button,
+mat-toolbar button.mat-button-base {
+  color: #d1d5db !important; /* gray-300 */
+}
+
+mat-toolbar button.mat-button:hover,
+mat-toolbar button.mat-button-base:hover {
+  color: #ffffff !important; /* white */
+  background-color: rgba(31, 41, 55, 0.5) !important; /* gray-800 con transparencia */
+}
+
+mat-toolbar button.mat-button.active,
+mat-toolbar button.mat-button-base.active {
+  color: #1DB954 !important; /* verde del logo */
+  background-color: rgba(29, 185, 84, 0.2) !important;
+}
+
+/* Asegurar que el texto del usuario también sea visible */
+mat-toolbar span {
+  color: #d1d5db !important; /* gray-300 */
+}
+

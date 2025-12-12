@@ -32,58 +32,42 @@ interface AlbumDetallado {
   // Para evitar `ngModel` y `FormsModule`, manejamos el input con `(input)`.
   // Para evitar `*ngIf` y `*ngFor`, usamos `@if` y `@for`.
   template: `
-    <!-- Fondo principal y layout general con gradiente verde y círculos -->
-    <div class="min-h-screen text-white font-sans gradient-bg relative overflow-hidden">
-      <!-- Círculos decorativos de fondo -->
-      <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-        <div class="circle circle-4"></div>
-        <div class="circle circle-5"></div>
-        <div class="circle circle-6"></div>
-      </div>
-      <!-- Header con logo Notify -->
-      <header class="w-full py-6 px-6 border-b-2 border-white/20 bg-black/30 backdrop-blur-md relative z-10">
-        <div class="container mx-auto flex justify-center items-center">
-          <h1 class="text-6xl md:text-7xl font-black text-white tracking-wider drop-shadow-2xl">
-            NOTIFY
-          </h1>
+    <!-- Fondo principal con estilo del panel de monitoreo -->
+    <div class="min-h-screen bg-black text-white p-6">
+      <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+          <h1 class="text-4xl font-bold mb-2 text-white">Búsqueda de Álbumes</h1>
+          <p class="text-gray-400">Encuentra tus álbumes favoritos</p>
         </div>
-      </header>
-      
-      <div class="container mx-auto max-w-5xl p-6 md:p-12 relative z-10">
-        
-        <!-- Título principal -->
-        <h2 class="text-4xl md:text-5xl font-extrabold mb-8 text-center text-green-400">
-          Búsqueda de Álbumes
-        </h2>
 
         <!-- Formulario de Búsqueda -->
-        <form class="flex w-full max-w-2xl mx-auto mb-12 shadow-lg" (submit)="$event.preventDefault()">
-          <input 
-            type="text" 
-            id="album" 
-            name="album"
-            placeholder="Buscar por artista o álbum..."
-            class="flex-grow p-4 rounded-l-lg bg-gray-800 text-white placeholder-gray-400 border-2 border-transparent focus:border-green-500 focus:ring-green-500 focus:outline-none transition-colors"
-            [value]="busqueda()"
-            (input)="buscar($event)">
-          <button 
-            type="submit"
-            class="p-4 bg-green-600 hover:bg-green-700 rounded-r-lg font-semibold transition-colors">
-            Buscar
-          </button>
-        </form>
+        <div class="mb-6">
+          <form class="flex w-full max-w-2xl mx-auto" (submit)="$event.preventDefault()">
+            <input 
+              type="text" 
+              id="album" 
+              name="album"
+              placeholder="Buscar por artista o álbum..."
+              class="flex-grow p-4 rounded-l-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:border-green-500 focus:ring-green-500 focus:outline-none transition-colors"
+              [value]="busqueda()"
+              (input)="buscar($event)">
+            <button 
+              type="submit"
+              class="p-4 bg-[#1DB954] hover:bg-[#1ed760] rounded-r-lg font-semibold transition-colors text-black">
+              Buscar
+            </button>
+          </form>
+        </div>
 
         <!-- Vista de Detalle del Álbum -->
         @if (cargandoDetalle()) {
           <div class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-400"></div>
-            <p class="mt-4 text-gray-300">Cargando información del álbum...</p>
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+            <p class="mt-4 text-gray-400">Cargando información del álbum...</p>
           </div>
         } @else if (albumSeleccionado()) {
-          <div class="w-full max-w-4xl mx-auto bg-gray-900/90 border-2 border-green-500 rounded-2xl shadow-2xl p-6 md:p-8 animate-fade-in backdrop-blur-sm">
+          <div class="bg-gray-900 rounded-lg p-6 md:p-8 border border-gray-800">
             <div class="flex flex-col md:flex-row gap-8">
               
               <!-- Portada del Álbum -->
@@ -91,36 +75,36 @@ interface AlbumDetallado {
                 <img 
                   [src]="albumSeleccionado()!.foto" 
                   alt="Portada de {{ albumSeleccionado()!.titulo }}"
-                  class="w-full h-auto rounded-lg object-cover aspect-square shadow-lg border-2 border-green-500">
+                  class="w-full h-auto rounded-lg object-cover aspect-square shadow-lg border border-gray-800">
               </div>
               
               <!-- Información del Álbum -->
               <div class="flex-1 min-w-0">
-                <h1 class="text-3xl md:text-4xl font-extrabold mb-2 break-words text-green-400">{{ albumSeleccionado()!.titulo }}</h1>
-                <p class="text-xl md:text-2xl font-light text-green-300 mb-6 break-words">{{ albumSeleccionado()!.artista }}</p>
+                <h1 class="text-3xl md:text-4xl font-bold mb-2 break-words text-white">{{ albumSeleccionado()!.titulo }}</h1>
+                <p class="text-xl md:text-2xl font-light text-gray-300 mb-6 break-words">{{ albumSeleccionado()!.artista }}</p>
                 
                 <!-- Estadísticas -->
-                <div class="grid grid-cols-2 gap-4 mb-6 text-gray-300">
-                  <div class="border border-gray-700 rounded-lg p-3 bg-black/30">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                  <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <span class="block text-xs font-medium text-gray-400 mb-1">Lanzamiento</span>
-                    <span class="text-base font-semibold break-words">{{ albumSeleccionado()!.fechaLanzamiento }}</span>
+                    <span class="text-base font-semibold text-white break-words">{{ albumSeleccionado()!.fechaLanzamiento }}</span>
                   </div>
-                  <div class="border border-gray-700 rounded-lg p-3 bg-black/30">
+                  <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <span class="block text-xs font-medium text-gray-400 mb-1">Canciones</span>
-                    <span class="text-base font-semibold">{{ albumSeleccionado()!.cantidadCanciones }}</span>
+                    <span class="text-base font-semibold text-white">{{ albumSeleccionado()!.cantidadCanciones }}</span>
                   </div>
-                  <div class="border border-gray-700 rounded-lg p-3 bg-black/30">
+                  <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <span class="block text-xs font-medium text-gray-400 mb-1">Reproducciones</span>
-                    <span class="text-base font-semibold break-words">{{ albumSeleccionado()!.reproducciones }}</span>
+                    <span class="text-base font-semibold text-white break-words">{{ albumSeleccionado()!.reproducciones }}</span>
                   </div>
-                  <div class="border border-gray-700 rounded-lg p-3 bg-black/30">
+                  <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <span class="block text-xs font-medium text-gray-400 mb-1">Oyentes</span>
-                    <span class="text-base font-semibold break-words">{{ albumSeleccionado()!.oyentes }}</span>
+                    <span class="text-base font-semibold text-white break-words">{{ albumSeleccionado()!.oyentes }}</span>
                   </div>
                 </div>
 
                 <!-- Descripción -->
-                <div class="border border-gray-700 rounded-lg p-4 bg-black/30 mb-8">
+                <div class="bg-gray-800 rounded-lg p-4 border border-gray-700 mb-8">
                   <h3 class="text-sm font-medium text-gray-400 mb-2">Descripción</h3>
                   <p class="text-gray-300 leading-relaxed break-words whitespace-pre-wrap max-h-60 overflow-y-auto">{{ albumSeleccionado()!.info }}</p>
                 </div>
@@ -128,7 +112,7 @@ interface AlbumDetallado {
                 <!-- Botón para Volver -->
                 <button 
                   (click)="limpiarSeleccion()"
-                  class="w-full md:w-auto mt-4 px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-lg font-semibold transition-colors">
+                  class="w-full md:w-auto mt-4 px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-colors text-white border border-gray-700">
                   &larr; Volver a la búsqueda
                 </button>
               </div>
@@ -138,18 +122,18 @@ interface AlbumDetallado {
           <!-- Loading State -->
           @if (cargando()) {
             <div class="text-center py-12">
-              <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-400"></div>
-              <p class="mt-4 text-gray-300">Buscando álbumes...</p>
+              <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+              <p class="mt-4 text-gray-400">Buscando álbumes...</p>
             </div>
           }
 
           <!-- Error State -->
           @if (error() && !cargando()) {
-            <div class="bg-red-900/50 border-2 border-red-700 rounded-lg p-4 text-center">
-              <p class="text-red-300 break-words">{{ error() }}</p>
+            <div class="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200">
+              <p class="break-words mb-2">{{ error() }}</p>
               <button 
                 (click)="error.set('')"
-                class="mt-2 px-4 py-2 bg-red-700 hover:bg-red-600 rounded-lg text-sm transition-colors">
+                class="px-4 py-2 bg-red-700 hover:bg-red-600 rounded-lg text-sm transition-colors">
                 Cerrar
               </button>
             </div>
@@ -161,17 +145,17 @@ interface AlbumDetallado {
               <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 @for (album of albumsFiltrados(); track album.titulo) {
                   <div
-                    class="bg-gray-900/90 border-2 border-green-500 rounded-lg overflow-hidden shadow-lg transition-all duration-300 hover:shadow-green-500/50 hover:scale-105 cursor-pointer animate-fade-in backdrop-blur-sm"
+                    class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800 shadow-lg transition-all duration-300 hover:border-[#1DB954] hover:shadow-[#1DB954]/20 cursor-pointer"
                     (click)="getInfo(album.artista, album.titulo)">
 
                     <img [src]="album.foto" alt="Portada de {{ album.titulo }}" class="w-full h-48 object-cover">
 
                     <div class="p-4">
-                      <p class="text-lg font-bold truncate text-green-400">{{ album.titulo }}</p>
-                      <p class="text-sm text-gray-400 truncate">{{ album.artista }}</p>
+                      <p class="text-lg font-bold truncate text-white mb-1">{{ album.titulo }}</p>
+                      <p class="text-sm text-gray-400 truncate mb-4">{{ album.artista }}</p>
 
                       <button
-                        class="mt-4 w-full bg-green-600 hover:bg-green-700 p-2 rounded-lg text-sm font-medium transition-colors">
+                        class="w-full bg-[#1DB954] hover:bg-[#1ed760] p-2 rounded-lg text-sm font-medium transition-colors text-black font-semibold">
                         Más información
                       </button>
                     </div>
@@ -180,9 +164,13 @@ interface AlbumDetallado {
               </div>
             } @else {
               @if (busqueda().length > 0 && !cargando()) {
-                <p class="text-center text-gray-300 col-span-full">No se encontraron álbumes para "{{busqueda()}}".</p>
+                <div class="bg-gray-900 rounded-lg p-8 border border-gray-800 text-center">
+                  <p class="text-gray-400 text-lg">No se encontraron álbumes para "{{busqueda()}}".</p>
+                </div>
               } @else if (!cargando()) {
-                <p class="text-center text-gray-300 col-span-full">Comienza a buscar para ver resultados.</p>
+                <div class="bg-gray-900 rounded-lg p-8 border border-gray-800 text-center">
+                  <p class="text-gray-400 text-lg">Comienza a buscar para ver resultados.</p>
+                </div>
               }
             }
           }
@@ -190,89 +178,14 @@ interface AlbumDetallado {
       </div>
     </div>
   `,
-  // Añadimos estilos para las animaciones y fondo con gradiente y círculos
   styles: [`
-    @keyframes fade-in {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-in {
-      animation: fade-in 0.3s ease-out forwards;
-    }
-    .gradient-bg {
-      background: linear-gradient(135deg, #1DB954 0%, #1ed760 25%, #1DB954 50%, #0d8043 75%, #0a5d2e 100%);
-      background-size: 400% 400%;
-      animation: gradient-shift 15s ease infinite;
-    }
-    @keyframes gradient-shift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    .circle {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      filter: blur(40px);
-      opacity: 0.6;
-      animation: float 20s ease-in-out infinite;
-    }
-    .circle-1 {
-      width: 500px;
-      height: 500px;
-      top: -100px;
-      left: -100px;
-      animation-delay: 0s;
-    }
-    .circle-2 {
-      width: 600px;
-      height: 600px;
-      top: 20%;
-      right: -150px;
-      animation-delay: 3s;
-    }
-    .circle-3 {
-      width: 400px;
-      height: 400px;
-      bottom: 10%;
-      left: 10%;
-      animation-delay: 6s;
-    }
-    .circle-4 {
-      width: 700px;
-      height: 700px;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      animation-delay: 9s;
-    }
-    .circle-5 {
-      width: 350px;
-      height: 350px;
-      bottom: -50px;
-      right: 20%;
-      animation-delay: 12s;
-    }
-    .circle-6 {
-      width: 450px;
-      height: 450px;
-      top: 70%;
-      right: -80px;
-      animation-delay: 15s;
-    }
-    @keyframes float {
-      0%, 100% {
-        transform: translate(0, 0) scale(1);
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
       }
-      25% {
-        transform: translate(30px, -30px) scale(1.1);
-      }
-      50% {
-        transform: translate(-20px, 20px) scale(0.9);
-      }
-      75% {
-        transform: translate(20px, 30px) scale(1.05);
-      }
+    }
+    .animate-spin {
+      animation: spin 1s linear infinite;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,

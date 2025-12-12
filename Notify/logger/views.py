@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.utils import timezone
+from django.conf import settings
 from datetime import timedelta
 from django.db.models import Count, Avg, Q, Sum
 from django.db.models.functions import TruncHour
@@ -82,99 +83,121 @@ def monitoring_dashboard(request):
     Admin-only API monitoring dashboard endpoint.
     Returns comprehensive metrics for API health monitoring.
     """
-    # Get time range (default: last 24 hours)
-    hours = int(request.GET.get('hours', 24))
-    time_threshold = timezone.now() - timedelta(hours=hours)
+    try:
+        # Debug: Log user information
+        from logging import getLogger
+        logger = getLogger(__name__)
+        user = request.user
+        logger.info(f"Monitoring dashboard access attempt - User: {user.username if hasattr(user, 'username') else 'Anonymous'}, "
+                   f"is_staff: {user.is_staff if hasattr(user, 'is_staff') else 'N/A'}, "
+                   f"is_superuser: {user.is_superuser if hasattr(user, 'is_superuser') else 'N/A'}, "
+                   f"is_authenticated: {user.is_authenticated if hasattr(user, 'is_authenticated') else 'N/A'}")
+        
+        # Get time range (default: last 24 hours)
+        hours = int(request.GET.get('hours', 24))
+        time_threshold = timezone.now() - timedelta(hours=hours)
+        
+        # Filter API monitor records within time range
+        recent_requests = APIMonitor.objects.filter(timestamp__gte=time_threshold)
+        
+        # Total Request Count
+        total_requests = recent_requests.count()
+        
+        # Average Response Time
+        avg_response_time = recent_requests.aggregate(
+            avg_time=Avg('response_time_ms')
+        )['avg_time'] or 0
+        
+        # Error Count & Rate
+        error_requests = recent_requests.filter(status_code__gte=400)
+        error_count = error_requests.count()
+        error_rate = (error_count / total_requests * 100) if total_requests > 0 else 0
+        
+        # Error breakdown by status code
+        error_breakdown = error_requests.values('status_code').annotate(
+            count=Count('id')
+        ).order_by('-count')
+        
+        # Status code distribution
+        status_distribution = recent_requests.values('status_code').annotate(
+            count=Count('id')
+        ).order_by('status_code')
+        
+        # Response time distribution (for charting)
+        response_time_stats = recent_requests.aggregate(
+            min_time=Avg('response_time_ms'),  # Using Avg for simplicity, could use Min/Max
+            max_time=Avg('response_time_ms'),
+            p50=Avg('response_time_ms'),  # Simplified - in production, use percentile
+            p95=Avg('response_time_ms'),
+            p99=Avg('response_time_ms'),
+        )
+        
+        # Requests per hour (for time series chart)
+        requests_per_hour = recent_requests.annotate(
+            hour=TruncHour('timestamp')
+        ).values('hour').annotate(
+            count=Count('id'),
+            avg_response_time=Avg('response_time_ms')
+        ).order_by('hour')
+        
+        # Top endpoints by request count
+        top_endpoints = recent_requests.values('endpoint', 'method').annotate(
+            count=Count('id'),
+            avg_response_time=Avg('response_time_ms'),
+            error_count=Count('id', filter=Q(status_code__gte=400))
+        ).order_by('-count')[:10]
+        
+        # Recent errors (last 20)
+        recent_errors = error_requests.select_related('user').order_by('-timestamp')[:20]
+        
+        # Build response data
+        metrics = {
+            'time_range_hours': hours,
+            'total_requests': total_requests,
+            'average_response_time_ms': round(avg_response_time, 2),
+            'error_count': error_count,
+            'error_rate_percent': round(error_rate, 2),
+            'error_breakdown': list(error_breakdown),
+            'status_distribution': list(status_distribution),
+            'response_time_stats': {
+                'min': round(response_time_stats['min_time'] or 0, 2),
+                'max': round(response_time_stats['max_time'] or 0, 2),
+                'avg': round(avg_response_time, 2),
+            },
+            'requests_per_hour': [
+                {
+                    'hour': item['hour'].isoformat() if item['hour'] else None,
+                    'count': item['count'],
+                    'avg_response_time': round(item['avg_response_time'] or 0, 2)
+                }
+                for item in requests_per_hour
+            ],
+            'top_endpoints': [
+                {
+                    'endpoint': item['endpoint'],
+                    'method': item['method'],
+                    'count': item['count'],
+                    'avg_response_time': round(item['avg_response_time'] or 0, 2),
+                    'error_count': item['error_count']
+                }
+                for item in top_endpoints
+            ],
+            'recent_errors': APIMonitorSerializer(recent_errors, many=True).data,
+        }
+        
+        return Response(metrics, status=status.HTTP_200_OK)
     
-    # Filter API monitor records within time range
-    recent_requests = APIMonitor.objects.filter(timestamp__gte=time_threshold)
-    
-    # Total Request Count
-    total_requests = recent_requests.count()
-    
-    # Average Response Time
-    avg_response_time = recent_requests.aggregate(
-        avg_time=Avg('response_time_ms')
-    )['avg_time'] or 0
-    
-    # Error Count & Rate
-    error_requests = recent_requests.filter(status_code__gte=400)
-    error_count = error_requests.count()
-    error_rate = (error_count / total_requests * 100) if total_requests > 0 else 0
-    
-    # Error breakdown by status code
-    error_breakdown = error_requests.values('status_code').annotate(
-        count=Count('id')
-    ).order_by('-count')
-    
-    # Status code distribution
-    status_distribution = recent_requests.values('status_code').annotate(
-        count=Count('id')
-    ).order_by('status_code')
-    
-    # Response time distribution (for charting)
-    response_time_stats = recent_requests.aggregate(
-        min_time=Avg('response_time_ms'),  # Using Avg for simplicity, could use Min/Max
-        max_time=Avg('response_time_ms'),
-        p50=Avg('response_time_ms'),  # Simplified - in production, use percentile
-        p95=Avg('response_time_ms'),
-        p99=Avg('response_time_ms'),
-    )
-    
-    # Requests per hour (for time series chart)
-    requests_per_hour = recent_requests.annotate(
-        hour=TruncHour('timestamp')
-    ).values('hour').annotate(
-        count=Count('id'),
-        avg_response_time=Avg('response_time_ms')
-    ).order_by('hour')
-    
-    # Top endpoints by request count
-    top_endpoints = recent_requests.values('endpoint', 'method').annotate(
-        count=Count('id'),
-        avg_response_time=Avg('response_time_ms'),
-        error_count=Count('id', filter=Q(status_code__gte=400))
-    ).order_by('-count')[:10]
-    
-    # Recent errors (last 20)
-    recent_errors = error_requests.select_related('user').order_by('-timestamp')[:20]
-    
-    # Build response data
-    metrics = {
-        'time_range_hours': hours,
-        'total_requests': total_requests,
-        'average_response_time_ms': round(avg_response_time, 2),
-        'error_count': error_count,
-        'error_rate_percent': round(error_rate, 2),
-        'error_breakdown': list(error_breakdown),
-        'status_distribution': list(status_distribution),
-        'response_time_stats': {
-            'min': round(response_time_stats['min_time'] or 0, 2),
-            'max': round(response_time_stats['max_time'] or 0, 2),
-            'avg': round(avg_response_time, 2),
-        },
-        'requests_per_hour': [
-            {
-                'hour': item['hour'].isoformat() if item['hour'] else None,
-                'count': item['count'],
-                'avg_response_time': round(item['avg_response_time'] or 0, 2)
-            }
-            for item in requests_per_hour
-        ],
-        'top_endpoints': [
-            {
-                'endpoint': item['endpoint'],
-                'method': item['method'],
-                'count': item['count'],
-                'avg_response_time': round(item['avg_response_time'] or 0, 2),
-                'error_count': item['error_count']
-            }
-            for item in top_endpoints
-        ],
-        'recent_errors': APIMonitorSerializer(recent_errors, many=True).data,
-    }
-    
-    return Response(metrics, status=status.HTTP_200_OK)
+    except Exception as e:
+        # Log the error for debugging
+        from logging import getLogger
+        logger = getLogger(__name__)
+        logger.error(f"Error in monitoring_dashboard: {str(e)}", exc_info=True)
+        
+        # Return error response
+        return Response({
+            'error': 'An error occurred while loading monitoring data',
+            'detail': str(e) if settings.DEBUG else 'Please check server logs'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])

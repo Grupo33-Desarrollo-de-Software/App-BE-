@@ -21,11 +21,17 @@ class UserLogIn(ObtainAuthToken):
                                      context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        token = Token.objects.get(user=user)
+        # Use get_or_create to create token if it doesn't exist
+        token, created = Token.objects.get_or_create(user=user)
+        if created:
+            logCrud(f"Token created for user: {user.username}")
+        logCrud(f"User logged in: {user.username}")
         return Response({
             'token': token.key,
             'id': user.pk,
-            'username': user.username
+            'username': user.username,
+            'is_staff': user.is_staff,
+            'is_superuser': user.is_superuser
         })
 
 @api_view(['POST'])
@@ -34,16 +40,24 @@ def register(request):
     """
     Register a new user. No authentication required.
     Supports both JSON and multipart/form-data (for file uploads).
+    Only administrators can set is_staff and is_superuser permissions.
     """
     # Handle both JSON and multipart/form-data
     data = request.data.copy()
     files = request.FILES
     
-    serializer = UserRegistrationSerializer(data=data, files=files)
+    # Pass request context to serializer for permission validation
+    serializer = UserRegistrationSerializer(data=data, files=files, context={'request': request})
     if serializer.is_valid():
         user = serializer.save()
         token = Token.objects.get(user=user)
-        logCrud(f"New user registered: {user.username}")
+        
+        # Log registration with admin status if applicable
+        admin_status = ""
+        if user.is_staff or user.is_superuser:
+            admin_status = f" (Admin: staff={user.is_staff}, superuser={user.is_superuser})"
+        logCrud(f"New user registered: {user.username}{admin_status}")
+        
         return Response({
             'token': token.key,
             'id': user.pk,
@@ -51,6 +65,8 @@ def register(request):
             'email': user.email,
             'first_name': user.first_name,
             'last_name': user.last_name,
+            'is_staff': user.is_staff,
+            'is_superuser': user.is_superuser,
             'message': 'User created successfully'
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

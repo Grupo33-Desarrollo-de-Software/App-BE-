@@ -1,0 +1,85 @@
+<div class="min-h-screen bg-black text-white p-6">
+  <div class="max-w-md mx-auto py-12">
+    <!-- Logo -->
+    <div class="flex justify-center mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-16 h-16 bg-[#1DB954] rounded-full flex items-center justify-center">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3L12 21M8 7L8 17M16 7L16 17" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span class="text-4xl font-bold">
+          <span class="text-white">n</span><span class="text-[#1DB954]">otify</span>
+          <span class="text-[#1DB954] text-xs align-super">®</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="bg-gray-900 rounded-2xl shadow-2xl p-8 border border-gray-800">
+      <h2 class="text-3xl font-bold text-center mb-8 text-white">Iniciar Sesión</h2>
+
+        <!-- Error Message -->
+        @if (errorMessage()) {
+          <div class="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+          <!-- Username -->
+          <div>
+            <label for="username" class="block text-sm font-medium mb-2">Username</label>
+            <input
+              type="text"
+              id="username"
+              formControlName="username"
+              class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1DB954] focus:border-[#1DB954] text-white placeholder-gray-400"
+              placeholder="Enter your username"
+            />
+            @if (isFieldInvalid('username')) {
+              <p class="mt-1 text-sm text-red-300">{{ getErrorMessage('username') }}</p>
+            }
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label for="password" class="block text-sm font-medium mb-2">Password</label>
+            <input
+              type="password"
+              id="password"
+              formControlName="password"
+              class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1DB954] focus:border-[#1DB954] text-white placeholder-gray-400"
+              placeholder="Enter your password"
+            />
+            @if (isFieldInvalid('password')) {
+              <p class="mt-1 text-sm text-red-300">{{ getErrorMessage('password') }}</p>
+            }
+          </div>
+
+          <!-- Submit Button -->
+                 <button
+                   type="submit"
+                   [disabled]="isLoading() || loginForm.invalid"
+                   class="w-full py-3 bg-[#1DB954] hover:bg-[#1ed760] disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg font-semibold text-black transition-colors"
+                 >
+            @if (isLoading()) {
+              <span>Signing In...</span>
+            } @else {
+              <span>Sign In</span>
+            }
+          </button>
+
+          <!-- Register Link -->
+          <div class="text-center">
+            <p class="text-white/70">
+              Don't have an account?
+              <a routerLink="/register" class="text-[#1DB954] hover:text-[#1ed760] font-medium ml-1">
+                Sign Up
+              </a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

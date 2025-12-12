@@ -152,6 +152,16 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "usuarios.Usuario"
 
+# REST Framework configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

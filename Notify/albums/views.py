@@ -16,7 +16,8 @@ from urllib.parse import urlparse
 from apiExterna.apiExterna import sanitizarURL
 
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 
 from logger.views import logAction, logError
 
@@ -89,6 +90,7 @@ def parsearDuracion(albumParseado):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def buscarAlbums(request, album):
     usuario = request.user
     a = api.buscarAlbums(album)
@@ -124,6 +126,7 @@ def persistirAlbum(artista,album):
     return artistaObjeto, albumObjeto
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def getInfo(request, artista, album):
     usuario = request.user
 

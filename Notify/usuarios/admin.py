@@ -63,6 +63,17 @@ class UsuarioAdmin(BaseUserAdmin):
                 ),
             },
         ),
+        (
+            "Permissions",
+            {
+                "classes": ("wide",),
+                "fields": (
+                    "is_staff",
+                    "is_superuser",
+                    "is_active",
+                ),
+            },
+        ),
     )
 
 
