@@ -5,3 +5,5 @@ pyvenv.cfg
 myenv/
 .venv/
 Notify/log/
+Angular/angular/node_modules
+

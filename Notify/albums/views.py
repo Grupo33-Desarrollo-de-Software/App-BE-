@@ -59,7 +59,7 @@ def calificar(request, artista, album):
     albumObjeto, _ = Album.objects.get_or_create(
         title = albumParseado["titulo"],
         tags = albumParseado["etiquetas"],
-        releaseDate = parsearDuracion(albumParseado),
+        releaseDate = parsearFecha(albumParseado),
         length = albumParseado["duracion"],
         cover = albumParseado["foto"],
         defaults={"playcount": albumParseado["reproducciones"]},
@@ -82,7 +82,7 @@ def calificar(request, artista, album):
     logAction(f"El usuario {usuario.username} calificó el album {album}")
     return redirect(request.META.get('HTTP_REFERER'))
 
-def parsearDuracion(albumParseado):
+def parsearFecha(albumParseado):
     if albumParseado.get("releaseDate"):
         return datetime.strptime(albumParseado["releaseDate"],"%d %b %Y")
     return None
