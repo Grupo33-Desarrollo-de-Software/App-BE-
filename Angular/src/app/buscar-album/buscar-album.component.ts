@@ -1,23 +1,25 @@
+// Componente para buscar y mostrar álbumes
 import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ServiceAPI } from '../service-api.service';
 import { Album } from '../buscar-album';
 
-// --- Interfaces para definir la estructura de nuestros datos ---
+// Estructura simple de un álbum para la lista
 interface AlbumSimple {
   titulo: string;
   artista: string;
   foto: string;
 }
 
+// Estructura detallada de un álbum
 interface AlbumDetallado {
   titulo: string;
   artista: string;
   foto: string;
   fechaLanzamiento: string;
-  reproducciones: string; // Usamos string para formato con comas
-  oyentes: string; // Usamos string para formato con comas
+  reproducciones: string; // Formato con comas
+  oyentes: string; // Formato con comas
   info: string;
   cantidadCanciones: number;
 }
@@ -26,22 +28,17 @@ interface AlbumDetallado {
   selector: 'app-buscar-album',
   standalone: true,
   imports: [CommonModule],
-  // Usamos 'standalone: true' y 'imports' si necesitamos módulos
-  // pero para este ejemplo simple con @if/@for, no son estrictamente necesarios
-  // si CommonModule se provee de forma global.
-  // Para evitar `ngModel` y `FormsModule`, manejamos el input con `(input)`.
-  // Para evitar `*ngIf` y `*ngFor`, usamos `@if` y `@for`.
   template: `
-    <!-- Fondo principal con estilo del panel de monitoreo -->
     <div class="min-h-screen bg-black text-white p-6">
       <div class="max-w-7xl mx-auto">
-        <!-- Header -->
+        <div class="flex justify-center mb-8">
+          <img src="assets/logo.png" alt="Notify Logo" class="h-12 w-auto object-contain max-w-[150px]">
+        </div>
         <div class="mb-8">
           <h1 class="text-4xl font-bold mb-2 text-white">Búsqueda de Álbumes</h1>
           <p class="text-gray-400">Encuentra tus álbumes favoritos</p>
         </div>
 
-        <!-- Formulario de Búsqueda -->
         <div class="mb-6">
           <form class="flex w-full max-w-2xl mx-auto" (submit)="$event.preventDefault()">
             <input 
@@ -60,7 +57,6 @@ interface AlbumDetallado {
           </form>
         </div>
 
-        <!-- Vista de Detalle del Álbum -->
         @if (cargandoDetalle()) {
           <div class="text-center py-12">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
@@ -70,7 +66,6 @@ interface AlbumDetallado {
           <div class="bg-gray-900 rounded-lg p-6 md:p-8 border border-gray-800">
             <div class="flex flex-col md:flex-row gap-8">
               
-              <!-- Portada del Álbum -->
               <div class="w-full md:w-1/3 flex-shrink-0">
                 <img 
                   [src]="albumSeleccionado()!.foto" 
@@ -78,12 +73,10 @@ interface AlbumDetallado {
                   class="w-full h-auto rounded-lg object-cover aspect-square shadow-lg border border-gray-800">
               </div>
               
-              <!-- Información del Álbum -->
               <div class="flex-1 min-w-0">
                 <h1 class="text-3xl md:text-4xl font-bold mb-2 break-words text-white">{{ albumSeleccionado()!.titulo }}</h1>
                 <p class="text-xl md:text-2xl font-light text-gray-300 mb-6 break-words">{{ albumSeleccionado()!.artista }}</p>
                 
-                <!-- Estadísticas -->
                 <div class="grid grid-cols-2 gap-4 mb-6">
                   <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <span class="block text-xs font-medium text-gray-400 mb-1">Lanzamiento</span>
@@ -103,13 +96,11 @@ interface AlbumDetallado {
                   </div>
                 </div>
 
-                <!-- Descripción -->
                 <div class="bg-gray-800 rounded-lg p-4 border border-gray-700 mb-8">
                   <h3 class="text-sm font-medium text-gray-400 mb-2">Descripción</h3>
                   <p class="text-gray-300 leading-relaxed break-words whitespace-pre-wrap max-h-60 overflow-y-auto">{{ albumSeleccionado()!.info }}</p>
                 </div>
 
-                <!-- Botón para Volver -->
                 <button 
                   (click)="limpiarSeleccion()"
                   class="w-full md:w-auto mt-4 px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-colors text-white border border-gray-700">
@@ -119,7 +110,6 @@ interface AlbumDetallado {
             </div>
           </div>
         } @else {
-          <!-- Loading State -->
           @if (cargando()) {
             <div class="text-center py-12">
               <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
@@ -127,7 +117,6 @@ interface AlbumDetallado {
             </div>
           }
 
-          <!-- Error State -->
           @if (error() && !cargando()) {
             <div class="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200">
               <p class="break-words mb-2">{{ error() }}</p>
@@ -139,7 +128,6 @@ interface AlbumDetallado {
             </div>
           }
 
-          <!-- Vista de Lista de Álbumes (Resultados) -->
           @if (!cargando() && !error()) {
             @if (albumsFiltrados().length > 0) {
               <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -191,31 +179,16 @@ interface AlbumDetallado {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BuscarAlbumComponent {
-  // --- Inyección de dependencias ---
   private apiService = inject(ServiceAPI);
 
-  // --- Estado de la aplicación usando Signals ---
+  busqueda = signal(''); // Texto de búsqueda
+  albumsFiltrados = signal<AlbumSimple[]>([]); // Lista de álbumes encontrados
+  albumSeleccionado = signal<AlbumDetallado | null>(null); // Álbum seleccionado para ver detalles
+  cargando = signal(false); // Indica si está cargando la búsqueda
+  cargandoDetalle = signal(false); // Indica si está cargando los detalles
+  error = signal(''); // Mensaje de error
 
-  // Término de búsqueda actual
-  busqueda = signal('');
-
-  // Álbumes filtrados que se muestran en la lista
-  albumsFiltrados = signal<AlbumSimple[]>([]);
-
-  // El álbum seleccionado para ver en detalle
-  albumSeleccionado = signal<AlbumDetallado | null>(null);
-
-  // Estados de carga y error
-  cargando = signal(false);
-  cargandoDetalle = signal(false);
-  error = signal('');
-
-  // --- Métodos del Componente ---
-
-  /**
-   * Se llama cada vez que el usuario escribe en el input.
-   * Realiza la búsqueda en el API de Django.
-   */
+  // Busca álbumes según el texto ingresado
   buscar(event: Event) {
     const valor = (event.target as HTMLInputElement).value.trim();
     this.busqueda.set(valor);
@@ -226,13 +199,11 @@ export class BuscarAlbumComponent {
       return;
     }
 
-    // Realizar búsqueda en el API
     this.cargando.set(true);
     this.error.set('');
 
     this.apiService.searchAlbums(valor).subscribe({
       next: (albums: Album[]) => {
-        // Convertir los álbumes del API al formato AlbumSimple
         const albumsSimples: AlbumSimple[] = albums.map(album => ({
           titulo: album.titulo,
           artista: album.artista,
@@ -250,16 +221,14 @@ export class BuscarAlbumComponent {
     });
   }
 
-  /**
-   * Obtiene la información detallada de un álbum desde el API de Django.
-   */
+
+  // Obtiene información detallada de un álbum
   getInfo(artista: string, titulo: string) {
     this.cargandoDetalle.set(true);
     this.error.set('');
 
     this.apiService.getInfo(artista, titulo).subscribe({
       next: (album: Album) => {
-        // Convertir el álbum del API al formato AlbumDetallado
         const detalle: AlbumDetallado = {
           titulo: album.titulo,
           artista: album.artista,
@@ -281,17 +250,13 @@ export class BuscarAlbumComponent {
     });
   }
 
-  /**
-   * Limpia el álbum seleccionado para volver a la lista.
-   */
+  // Limpia la selección y vuelve a la lista
   limpiarSeleccion() {
     this.albumSeleccionado.set(null);
     this.error.set('');
   }
 
-  /**
-   * Formatea un número agregando comas como separadores de miles.
-   */
+  // Formatea un número con comas
   private formatearNumero(numero: number | string): string {
     if (typeof numero === 'string') {
       numero = parseInt(numero, 10);
@@ -302,15 +267,11 @@ export class BuscarAlbumComponent {
     return numero.toLocaleString('es-ES');
   }
 
-  /**
-   * Formatea la fecha de lanzamiento.
-   */
+  // Formatea una fecha en formato legible
   private formatearFecha(fecha: string | null | undefined): string {
     if (!fecha) {
       return 'Fecha no disponible';
     }
-    // La fecha viene en formato "01 Jan 2024" desde la API
-    // Intentamos parsearla y formatearla
     try {
       const fechaObj = new Date(fecha);
       if (isNaN(fechaObj.getTime())) {

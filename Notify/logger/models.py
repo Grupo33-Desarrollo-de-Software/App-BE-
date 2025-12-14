@@ -15,19 +15,19 @@ class Log(models.Model):
 
 
 class APIMonitor(models.Model):
-    """Model to store detailed API request/response monitoring data"""
+    #Modelo para almacenar datos detallados de monitoreo de solicitudes/respuestas de API
     request_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     method = models.CharField(max_length=10)  # GET, POST, PUT, DELETE, etc.
-    endpoint = models.CharField(max_length=500)  # Full path
+    endpoint = models.CharField(max_length=500)  # Ruta completa
     status_code = models.IntegerField()
-    response_time_ms = models.FloatField()  # Response time in milliseconds
+    response_time_ms = models.FloatField()  # Tiempo de respuesta en milisegundos
     user = models.ForeignKey('usuarios.Usuario', on_delete=models.SET_NULL, null=True, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.TextField(null=True, blank=True)
     error_message = models.TextField(null=True, blank=True)
     stack_trace = models.TextField(null=True, blank=True)
-    request_body = models.TextField(null=True, blank=True)  # For debugging (be careful with sensitive data)
+    request_body = models.TextField(null=True, blank=True) 
     
     class Meta:
         ordering = ['-timestamp']

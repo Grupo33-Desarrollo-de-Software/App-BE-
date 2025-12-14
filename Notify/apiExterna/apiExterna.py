@@ -90,7 +90,7 @@ def parsearAlbum2(album):  # Este parsearAlbum2 es para guardar el album en la b
 # title, genre, releaseDate, length, country, released, playcount
 
 
-def parsearAlbum3(album):  # Este parsearAlbum3 hacer la busqueda para la API
+def parsearAlbum3(album):  # Este parsearAlbum3 hace la busqueda para la API
     aux = album["album"]
     resultado = {
         "title": aux["name"],

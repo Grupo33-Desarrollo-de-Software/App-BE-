@@ -13,7 +13,6 @@ class LogSerializer(serializers.ModelSerializer):
 
 
 class APIMonitorSerializer(serializers.ModelSerializer):
-    """Serializer for detailed API monitoring data"""
     user_username = serializers.SerializerMethodField()
     timestamp_formatted = serializers.DateTimeField(source='timestamp', read_only=True, format='%Y-%m-%d %H:%M:%S')
     
@@ -37,12 +36,10 @@ class APIMonitorSerializer(serializers.ModelSerializer):
         read_only_fields = fields
     
     def get_user_username(self, obj):
-        """Safely get username, returning None if user is None"""
         return obj.user.username if obj.user else None
 
 
 class MonitoringMetricsSerializer(serializers.Serializer):
-    """Serializer for monitoring dashboard metrics"""
     time_range_hours = serializers.IntegerField()
     total_requests = serializers.IntegerField()
     average_response_time_ms = serializers.FloatField()

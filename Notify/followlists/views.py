@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from usuarios.models import Usuario
 from .models import Follow
 from albums.models import Album

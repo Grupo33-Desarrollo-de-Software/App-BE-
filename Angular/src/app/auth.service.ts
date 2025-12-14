@@ -1,6 +1,8 @@
+// Servicio para manejar la autenticación de usuarios
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
+// Define la estructura de un usuario
 export interface User {
   id: number;
   username: string;
@@ -12,26 +14,25 @@ export interface User {
   providedIn: 'root'
 })
 export class AuthService {
+  // Claves para guardar datos en el navegador
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'user_data';
-  
-  // Signals para el estado de autenticación
+
+  // Estados de autenticación
   isAuthenticated = signal<boolean>(false);
   currentUser = signal<User | null>(null);
   isAdmin = signal<boolean>(false);
 
   constructor(private router: Router) {
-    // Verificar si hay un usuario guardado al inicializar
+    // Al iniciar, verifica si hay un usuario guardado
     this.checkAuthStatus();
   }
 
-  /**
-   * Verifica el estado de autenticación desde localStorage
-   */
+  // Verifica si el usuario está autenticado
   checkAuthStatus(): void {
     const token = localStorage.getItem(this.TOKEN_KEY);
     const userData = localStorage.getItem(this.USER_KEY);
-    
+
     if (token && userData) {
       try {
         const user: User = JSON.parse(userData);
@@ -39,7 +40,6 @@ export class AuthService {
         this.currentUser.set(user);
         this.isAdmin.set(user.is_staff || user.is_superuser);
       } catch (e) {
-        // Si hay error al parsear, limpiar datos
         this.logout();
       }
     } else {
@@ -49,9 +49,7 @@ export class AuthService {
     }
   }
 
-  /**
-   * Guarda los datos del usuario después del login
-   */
+  // Guarda los datos del usuario al hacer login
   setUser(token: string, user: User): void {
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
@@ -60,30 +58,22 @@ export class AuthService {
     this.isAdmin.set(user.is_staff || user.is_superuser);
   }
 
-  /**
-   * Obtiene el token de autenticación
-   */
+  // Obtiene el token guardado
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  /**
-   * Obtiene el usuario actual
-   */
+  // Obtiene el usuario actual
   getUser(): User | null {
     return this.currentUser();
   }
 
-  /**
-   * Verifica si el usuario es admin
-   */
+  // Verifica si el usuario es administrador
   checkIsAdmin(): boolean {
     return this.isAdmin();
   }
 
-  /**
-   * Cierra sesión y limpia los datos
-   */
+  // Cierra sesión y borra todos los datos
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
@@ -95,4 +85,3 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 }
-

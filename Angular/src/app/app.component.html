@@ -2,63 +2,38 @@
   <div class="flex items-center gap-6">
     <!-- Logo -->
     <div class="flex items-center gap-3 cursor-pointer" (click)="navigateTo('/')">
-      <div class="w-10 h-10 bg-[#1DB954] rounded-full flex items-center justify-center">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 3L12 21M8 7L8 17M16 7L16 17" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <span class="text-2xl font-bold">
-        <span class="text-white">n</span><span class="text-[#1DB954]">otify</span>
-        <span class="text-[#1DB954] text-xs align-super">®</span>
-      </span>
+      <img src="assets/logo.png" alt="Notify Logo" class="h-10 w-auto object-contain max-w-[120px]">
     </div>
-    
-    <!-- Navigation Tabs -->
+
     <nav class="flex gap-2 ml-8">
-      <button 
-        mat-button 
-        routerLink="/" 
-        routerLinkActive="active"
+      <button mat-button routerLink="/" routerLinkActive="active"
         class="text-gray-300 hover:text-white hover:bg-gray-800 transition-colors">
         Buscar Álbumes
       </button>
-      
-      <!-- Show Monitoring tab only if user is admin -->
+
       @if (authService.isAdmin()) {
-        <button 
-          mat-button 
-          routerLink="/admin/monitoreo" 
-          routerLinkActive="active"
-          class="text-gray-300 hover:text-white hover:bg-gray-800 transition-colors">
-          Panel de Monitoreo
-        </button>
+      <button mat-button routerLink="/admin/monitoreo" routerLinkActive="active"
+        class="text-gray-300 hover:text-white hover:bg-gray-800 transition-colors">
+        Panel de Monitoreo
+      </button>
       }
     </nav>
   </div>
 
-  <!-- User Section -->
   <div class="flex items-center gap-4">
     @if (authService.isAuthenticated()) {
-      <span class="text-gray-300">Hola, {{ authService.getUser()?.username }}</span>
-      <button 
-        mat-button 
-        (click)="logout()"
-        class="text-gray-300 hover:text-white hover:bg-gray-800 transition-colors">
-        Cerrar Sesión
-      </button>
+    <span class="text-gray-300">Hola, {{ authService.getUser()?.username }}</span>
+    <button mat-button (click)="logout()" class="text-gray-300 hover:text-white hover:bg-gray-800 transition-colors">
+      Cerrar Sesión
+    </button>
     } @else {
-      <button 
-        mat-button 
-        routerLink="/login"
-        class="text-gray-300 hover:text-white hover:bg-gray-800 transition-colors">
-        Iniciar Sesión
-      </button>
-      <button 
-        mat-button 
-        routerLink="/register"
-        class="bg-[#1DB954] hover:bg-[#1ed760] text-black font-semibold px-4 py-2 rounded-lg transition-colors">
-        Registrarse
-      </button>
+    <button mat-button routerLink="/login" class="text-gray-300 hover:text-white hover:bg-gray-800 transition-colors">
+      Iniciar Sesión
+    </button>
+    <button mat-button routerLink="/register"
+      class="bg-[#1DB954] hover:bg-[#1ed760] text-black font-semibold px-4 py-2 rounded-lg transition-colors">
+      Registrarse
+    </button>
     }
   </div>
 </mat-toolbar>

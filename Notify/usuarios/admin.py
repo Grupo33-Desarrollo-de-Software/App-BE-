@@ -4,8 +4,7 @@ from .models import Usuario
 
 
 class UsuarioAdmin(BaseUserAdmin):
-    """Custom admin for Usuario model that properly handles password hashing"""
-
+    
     # Campos para ver los usuarios en la lista
     list_display = (
         "username",

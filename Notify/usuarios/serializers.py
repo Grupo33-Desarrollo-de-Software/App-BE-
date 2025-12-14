@@ -29,33 +29,32 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         }
 
     def validate_username(self, value):
-        """Validate username is unique and follows Django's requirements"""
+        # Validar que el nombre de usuario sea único y siga los requisitos de Django
         if Usuario.objects.filter(username=value).exists():
             raise serializers.ValidationError("A user with that username already exists.")
         return value
 
     def create(self, validated_data):
-        # Extract password before creating user
         password = validated_data.pop('password', None)
         if not password:
-            raise serializers.ValidationError({'password': 'Password is required'})
+            raise serializers.ValidationError({'password': 'Se requiere una contraseña'})
         
-        # Get the request user from context to check permissions
+        # Obtener usuario de la solicitud del contexto para verificar permisos
         request = self.context.get('request')
         is_admin = request and (request.user.is_staff or request.user.is_superuser) if request else False
         
-        # Extract permission fields
+        # Extraer campos de los permisos
         is_staff = validated_data.pop('is_staff', False)
         is_superuser = validated_data.pop('is_superuser', False)
         
-        # Only allow admins to set permissions
+        # Solo permitir a los administradores establecer permisos
         if (is_staff or is_superuser) and not is_admin:
             raise serializers.ValidationError({
-                'is_staff': 'Only administrators can assign staff status.',
-                'is_superuser': 'Only administrators can assign superuser status.'
+                'is_staff': 'Solo los administradores pueden asignar estado de staff.',
+                'is_superuser': 'Solo los administradores pueden asignar estado de superusuario.'
             })
         
-        # Set default values for notification preferences if not provided
+        # Establecer valores por defecto        
         if 'notifPorMail' not in validated_data:
             validated_data['notifPorMail'] = True
         if 'notifRecomendaciones' not in validated_data:
@@ -63,15 +62,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if 'notifGenerales' not in validated_data:
             validated_data['notifGenerales'] = True
         
-        # Create user without password first
+        # Crear usuario sin contraseña primero
         user = Usuario.objects.create(**validated_data)
         
-        # Set permissions if provided and user is admin
+        # Establecer permisos si se proporcionan y el usuario es admin
         if is_admin:
             user.is_staff = is_staff
             user.is_superuser = is_superuser
         
-        # Hash and set password properly
+        # Hashear y establecer contraseña correctamente
         user.set_password(password)
         user.save()
         
@@ -91,15 +90,15 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ('username', )
 
     def create(self, validated_data):
-        # Extract password before creating user
+        # Extraer la contraseña antes de crear el usuario
         password = validated_data.pop('password', None)
         if not password:
-            raise serializers.ValidationError({'password': 'Password is required'})
+            raise serializers.ValidationError({'password': 'La contraseña es requerida'})
         
-        # Create user without password first
+        # Crear usuario sin contraseña primero
         user = Usuario.objects.create(**validated_data)
         
-        # Hash and set password properly
+        # Hashear y establecer contraseña correctamente
         user.set_password(password)
         user.save()
         

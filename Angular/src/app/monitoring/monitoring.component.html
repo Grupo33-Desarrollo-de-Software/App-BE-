@@ -1,210 +1,227 @@
 <div class="min-h-screen bg-black text-white p-6">
   <div class="max-w-7xl mx-auto">
-    <!-- Header -->
+    <div class="flex justify-center mb-8">
+      <img src="assets/logo.png" alt="Notify Logo" class="h-12 w-auto object-contain max-w-[150px]">
+    </div>
     <div class="mb-8">
       <h1 class="text-4xl font-bold mb-2">Panel de Monitoreo de API</h1>
       <p class="text-gray-400">Métricas de salud y rendimiento de la API en tiempo real</p>
     </div>
 
-    <!-- Time Range Selector -->
     <div class="mb-6 flex gap-2 flex-wrap">
       <span class="text-gray-400 self-center">Rango de Tiempo:</span>
       @for (hours of timeRanges; track hours) {
-        <button
-          (click)="onTimeRangeChange(hours)"
-          [class.bg-[#1DB954]]="selectedHours() === hours"
-          [class.bg-gray-800]="selectedHours() !== hours"
-          [class.text-black]="selectedHours() === hours"
-          [class.text-white]="selectedHours() !== hours"
-          class="px-4 py-2 rounded-lg hover:bg-[#1ed760] transition-colors font-semibold"
-        >
-          {{ hours }}h
-        </button>
+      <button (click)="onTimeRangeChange(hours)" [class.bg-[#1DB954]]="selectedHours() === hours"
+        [class.bg-gray-800]="selectedHours() !== hours" [class.text-black]="selectedHours() === hours"
+        [class.text-white]="selectedHours() !== hours"
+        class="px-4 py-2 rounded-lg hover:bg-[#1ed760] transition-colors font-semibold">
+        {{ hours }}h
+      </button>
       }
     </div>
 
-    <!-- Error Message -->
     @if (error()) {
-      <div class="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200">
-        {{ error() }}
-      </div>
+    <div class="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200">
+      {{ error() }}
+    </div>
     }
 
-    <!-- Loading State -->
     @if (isLoading()) {
-      <div class="text-center py-12">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-        <p class="mt-4 text-gray-400">Cargando métricas...</p>
-      </div>
+    <div class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      <p class="mt-4 text-gray-400">Cargando métricas...</p>
+    </div>
     }
 
-    <!-- Metrics Display -->
     @if (metrics() && !isLoading()) {
-      <div class="space-y-6">
-        <!-- Empty State -->
-        @if (metrics()!.total_requests === 0) {
-          <div class="bg-gray-800 rounded-lg p-8 border border-gray-700 text-center">
-            <p class="text-gray-400 text-lg mb-2">No hay datos de monitoreo disponibles</p>
-            <p class="text-gray-500 text-sm">Los datos aparecerán aquí una vez que se realicen solicitudes a la API.</p>
-          </div>
-        }
-        <!-- Key Metrics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <!-- Total Requests -->
-          <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-            <h3 class="text-gray-400 text-sm mb-2">Total de Solicitudes</h3>
-            <p class="text-3xl font-bold text-white">{{ formatNumber(metrics()!.total_requests) }}</p>
-            <p class="text-gray-500 text-xs mt-2">Últimas {{ selectedHours() }} horas</p>
-          </div>
-
-          <!-- Average Response Time -->
-          <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-            <h3 class="text-gray-400 text-sm mb-2">Tiempo Promedio de Respuesta</h3>
-            <p class="text-3xl font-bold text-[#1DB954]">{{ formatTime(metrics()!.average_response_time_ms) }}</p>
-            <p class="text-gray-500 text-xs mt-2">En todas las solicitudes</p>
-          </div>
-
-          <!-- Error Count -->
-          <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-            <h3 class="text-gray-400 text-sm mb-2">Cantidad de Errores</h3>
-            <p class="text-3xl font-bold text-red-400">{{ formatNumber(metrics()!.error_count) }}</p>
-            <p class="text-gray-500 text-xs mt-2">HTTP 4xx & 5xx</p>
-          </div>
-
-          <!-- Error Rate -->
-          <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-            <h3 class="text-gray-400 text-sm mb-2">Tasa de Errores</h3>
-            <p class="text-3xl font-bold" [class.text-red-400]="metrics()!.error_rate_percent > 5" [class.text-yellow-400]="metrics()!.error_rate_percent > 0 && metrics()!.error_rate_percent <= 5" [class.text-[#1DB954]]="metrics()!.error_rate_percent === 0">
-              {{ metrics()!.error_rate_percent.toFixed(2) }}%
-            </p>
-            <p class="text-gray-500 text-xs mt-2">Del total de solicitudes</p>
-          </div>
+    <div class="space-y-6">
+      @if (metrics()!.total_requests === 0) {
+      <div class="bg-gray-800 rounded-lg p-8 border border-gray-700 text-center">
+        <p class="text-gray-400 text-lg mb-2">No hay datos de monitoreo disponibles</p>
+        <p class="text-gray-500 text-sm">Los datos aparecerán aquí una vez que se realicen solicitudes a la API.</p>
+      </div>
+      }
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+          <h3 class="text-gray-400 text-sm mb-2">Total de Solicitudes</h3>
+          <p class="text-3xl font-bold text-white">{{ formatNumber(metrics()!.total_requests) }}</p>
+          <p class="text-gray-500 text-xs mt-2">Últimas {{ selectedHours() }} horas</p>
         </div>
 
-        <!-- Error Breakdown -->
-        @if (metrics()!.error_breakdown.length > 0) {
-          <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-            <h2 class="text-xl font-bold mb-4">Desglose de Errores por Código de Estado</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              @for (error of metrics()!.error_breakdown; track error.status_code) {
-                <div class="text-center p-4 bg-gray-700/50 rounded-lg">
-                  <p class="text-2xl font-bold" [ngClass]="getStatusColor(error.status_code)">
-                    {{ error.status_code }}
-                  </p>
-                  <p class="text-gray-400 text-sm mt-1">{{ formatNumber(error.count) }} errores</p>
-                </div>
-              }
-            </div>
-          </div>
-        }
+        <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+          <h3 class="text-gray-400 text-sm mb-2">Tiempo Promedio de Respuesta</h3>
+          <p class="text-3xl font-bold text-[#1DB954]">{{ formatTime(metrics()!.average_response_time_ms) }}</p>
+          <p class="text-gray-500 text-xs mt-2">En todas las solicitudes</p>
+        </div>
 
-        <!-- Top Endpoints -->
-        @if (metrics()!.top_endpoints.length > 0) {
-          <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-            <h2 class="text-xl font-bold mb-4">Endpoints Más Utilizados</h2>
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead>
-                  <tr class="border-b border-gray-700">
-                    <th class="text-left py-3 px-4 text-gray-400">Método</th>
-                    <th class="text-left py-3 px-4 text-gray-400">Endpoint</th>
-                    <th class="text-right py-3 px-4 text-gray-400">Solicitudes</th>
-                    <th class="text-right py-3 px-4 text-gray-400">Tiempo Prom.</th>
-                    <th class="text-right py-3 px-4 text-gray-400">Errores</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (endpoint of metrics()!.top_endpoints; track endpoint.endpoint + endpoint.method) {
-                    <tr class="border-b border-gray-700/50 hover:bg-gray-700/30">
-                      <td class="py-3 px-4">
-                        <span class="px-2 py-1 rounded text-xs font-mono" [ngClass]="getStatusBadgeColor(200)">
-                          {{ endpoint.method }}
-                        </span>
-                      </td>
-                      <td class="py-3 px-4 font-mono text-sm">{{ endpoint.endpoint }}</td>
-                      <td class="py-3 px-4 text-right">{{ formatNumber(endpoint.count) }}</td>
-                      <td class="py-3 px-4 text-right">{{ formatTime(endpoint.avg_response_time) }}</td>
-                      <td class="py-3 px-4 text-right">
-                        @if (endpoint.error_count > 0) {
-                          <span class="text-red-400">{{ formatNumber(endpoint.error_count) }}</span>
-                        } @else {
-                          <span class="text-gray-500">0</span>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
-        }
+        <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+          <h3 class="text-gray-400 text-sm mb-2">Cantidad de Errores</h3>
+          <p class="text-3xl font-bold text-red-400">{{ formatNumber(metrics()!.error_count) }}</p>
+          <p class="text-gray-500 text-xs mt-2">HTTP 4xx & 5xx</p>
+        </div>
 
-        <!-- Recent Errors -->
-        @if (metrics()!.recent_errors.length > 0) {
-          <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-            <h2 class="text-xl font-bold mb-4">Errores Recientes</h2>
-            <div class="space-y-4">
-              @for (error of metrics()!.recent_errors; track error.request_id) {
-                <div class="bg-gray-700/50 rounded-lg p-4 border-l-4 border-red-500">
-                  <div class="flex justify-between items-start mb-2">
-                    <div>
-                      <span class="px-2 py-1 rounded text-xs font-mono mr-2" [ngClass]="getStatusBadgeColor(error.status_code)">
-                        {{ error.method }} {{ error.status_code }}
-                      </span>
-                      <span class="font-mono text-sm text-gray-300">{{ error.endpoint }}</span>
-                    </div>
-                    <span class="text-xs text-gray-500">{{ error.timestamp_formatted }}</span>
-                  </div>
-                  @if (error.error_message) {
-                    <p class="text-red-300 text-sm mt-2">{{ error.error_message }}</p>
-                  }
-                  <div class="mt-2 text-xs text-gray-400">
-                    <span>ID de Solicitud: </span>
-                    <span class="font-mono">{{ error.request_id }}</span>
-                    @if (error.user_username) {
-                      <span class="ml-4">Usuario: {{ error.user_username }}</span>
-                    }
-                    @if (error.ip_address) {
-                      <span class="ml-4">IP: {{ error.ip_address }}</span>
-                    }
-                    <span class="ml-4">Tiempo: {{ formatTime(error.response_time_ms) }}</span>
-                  </div>
-                  @if (error.stack_trace) {
-                    <details class="mt-3">
-                      <summary class="text-xs text-gray-400 cursor-pointer hover:text-gray-300">Mostrar Stack Trace</summary>
-                      <pre class="mt-2 p-3 bg-gray-900 rounded text-xs text-red-300 overflow-x-auto">{{ error.stack_trace }}</pre>
-                    </details>
-                  }
-                </div>
-              }
-            </div>
-          </div>
-        }
+        <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+          <h3 class="text-gray-400 text-sm mb-2">Tasa de Errores</h3>
+          <p class="text-3xl font-bold" [class.text-red-400]="metrics()!.error_rate_percent > 5"
+            [class.text-yellow-400]="metrics()!.error_rate_percent > 0 && metrics()!.error_rate_percent <= 5"
+            [class.text-[#1DB954]]="metrics()!.error_rate_percent === 0">
+            {{ metrics()!.error_rate_percent.toFixed(2) }}%
+          </p>
+          <p class="text-gray-500 text-xs mt-2">Del total de solicitudes</p>
+        </div>
+      </div>
 
-        <!-- Requests Per Hour Chart Data -->
-        @if (metrics()!.requests_per_hour.length > 0) {
-          <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
-            <h2 class="text-xl font-bold mb-4">Solicitudes por Hora</h2>
-            <div class="space-y-2">
-              @for (hourData of metrics()!.requests_per_hour; track hourData.hour) {
-                <div class="flex items-center gap-4">
-                  <span class="text-sm text-gray-400 w-32">{{ hourData.hour }}</span>
-                  <div class="flex-1 bg-gray-700 rounded-full h-6 relative">
-                    <div 
-                      class="bg-green-500 h-6 rounded-full flex items-center justify-end pr-2"
-                      [style.width.%]="(hourData.count / (metrics()!.total_requests / metrics()!.requests_per_hour.length) * 100) | number:'1.0-0'"
-                    >
-                      <span class="text-xs text-white font-bold">{{ formatNumber(hourData.count) }}</span>
-                    </div>
-                  </div>
-                  <span class="text-sm text-gray-400 w-20 text-right">{{ formatTime(hourData.avg_response_time) }}</span>
-                </div>
-              }
-            </div>
+      @if (metrics()!.error_breakdown.length > 0) {
+      <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+        <h2 class="text-xl font-bold mb-4">Desglose de Errores por Código de Estado</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          @for (error of metrics()!.error_breakdown; track error.status_code) {
+          <div class="text-center p-4 bg-gray-700/50 rounded-lg">
+            <p class="text-2xl font-bold" [ngClass]="getStatusColor(error.status_code)">
+              {{ error.status_code }}
+            </p>
+            <p class="text-gray-400 text-sm mt-1">{{ formatNumber(error.count) }} errores</p>
           </div>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- Sección de Bitácora -->
+      <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Últimas 100 Entradas de la Bitácora</h2>
+          <button (click)="loadLogs()"
+            class="px-4 py-2 bg-[#1DB954] hover:bg-[#1ed760] rounded-lg text-sm font-semibold transition-colors text-black"
+            [disabled]="isLoadingLogs()">
+            @if (isLoadingLogs()) {
+            <span>Cargando...</span>
+            } @else {
+            <span>Actualizar</span>
+            }
+          </button>
+        </div>
+
+        @if (isLoadingLogs()) {
+        <div class="text-center py-8">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
+          <p class="mt-4 text-gray-400">Cargando bitácora...</p>
+        </div>
+        } @else if (logs().length === 0) {
+        <div class="bg-gray-800 rounded-lg p-8 border border-gray-700 text-center">
+          <p class="text-gray-400 text-lg">No hay entradas en la bitácora</p>
+        </div>
+        } @else {
+        <div class="overflow-x-auto">
+          <div class="space-y-2 max-h-96 overflow-y-auto">
+            @for (log of logs(); track log.fechahora + log.cuerpo) {
+            <div class="bg-gray-800/50 rounded-lg p-4 border-l-4" [ngClass]="{
+                'border-red-500': log.tipo === 'ERROR',
+                'border-blue-500': log.tipo === 'CRUD',
+                'border-yellow-500': log.tipo === 'ACTION',
+                'border-green-500': log.tipo === 'RESPONSETIME',
+                'border-gray-500': !['ERROR', 'CRUD', 'ACTION', 'RESPONSETIME'].includes(log.tipo)
+              }">
+              <div class="flex justify-between items-start mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-1 rounded text-xs font-mono font-semibold"
+                    [ngClass]="getLogTypeBadgeColor(log.tipo)">
+                    {{ log.tipo }}
+                  </span>
+                  <span class="text-sm text-gray-300 break-words">{{ log.cuerpo }}</span>
+                </div>
+                <span class="text-xs text-gray-500 ml-4 whitespace-nowrap">{{ log.fechahora }}</span>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
         }
       </div>
+
+      @if (metrics()!.top_endpoints.length > 0) {
+      <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+        <h2 class="text-xl font-bold mb-4">Endpoints Más Utilizados</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-700">
+                <th class="text-left py-3 px-4 text-gray-400">Método</th>
+                <th class="text-left py-3 px-4 text-gray-400">Endpoint</th>
+                <th class="text-right py-3 px-4 text-gray-400">Solicitudes</th>
+                <th class="text-right py-3 px-4 text-gray-400">Tiempo Prom.</th>
+                <th class="text-right py-3 px-4 text-gray-400">Errores</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (endpoint of metrics()!.top_endpoints; track endpoint.endpoint + endpoint.method) {
+              <tr class="border-b border-gray-700/50 hover:bg-gray-700/30">
+                <td class="py-3 px-4">
+                  <span class="px-2 py-1 rounded text-xs font-mono" [ngClass]="getStatusBadgeColor(200)">
+                    {{ endpoint.method }}
+                  </span>
+                </td>
+                <td class="py-3 px-4 font-mono text-sm">{{ endpoint.endpoint }}</td>
+                <td class="py-3 px-4 text-right">{{ formatNumber(endpoint.count) }}</td>
+                <td class="py-3 px-4 text-right">{{ formatTime(endpoint.avg_response_time) }}</td>
+                <td class="py-3 px-4 text-right">
+                  @if (endpoint.error_count > 0) {
+                  <span class="text-red-400">{{ formatNumber(endpoint.error_count) }}</span>
+                  } @else {
+                  <span class="text-gray-500">0</span>
+                  }
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
+
+      @if (metrics()!.recent_errors.length > 0) {
+      <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+        <h2 class="text-xl font-bold mb-4">Errores Recientes</h2>
+        <div class="space-y-4">
+          @for (error of metrics()!.recent_errors; track error.request_id) {
+          <div class="bg-gray-700/50 rounded-lg p-4 border-l-4 border-red-500">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <span class="px-2 py-1 rounded text-xs font-mono mr-2"
+                  [ngClass]="getStatusBadgeColor(error.status_code)">
+                  {{ error.method }} {{ error.status_code }}
+                </span>
+                <span class="font-mono text-sm text-gray-300">{{ error.endpoint }}</span>
+              </div>
+              <span class="text-xs text-gray-500">{{ error.timestamp_formatted }}</span>
+            </div>
+            @if (error.error_message) {
+            <p class="text-red-300 text-sm mt-2">{{ error.error_message }}</p>
+            }
+            <div class="mt-2 text-xs text-gray-400">
+              <span>ID de Solicitud: </span>
+              <span class="font-mono">{{ error.request_id }}</span>
+              @if (error.user_username) {
+              <span class="ml-4">Usuario: {{ error.user_username }}</span>
+              }
+              @if (error.ip_address) {
+              <span class="ml-4">IP: {{ error.ip_address }}</span>
+              }
+              <span class="ml-4">Tiempo: {{ formatTime(error.response_time_ms) }}</span>
+            </div>
+            @if (error.stack_trace) {
+            <details class="mt-3">
+              <summary class="text-xs text-gray-400 cursor-pointer hover:text-gray-300">Mostrar Stack Trace</summary>
+              <pre
+                class="mt-2 p-3 bg-gray-900 rounded text-xs text-red-300 overflow-x-auto">{{ error.stack_trace }}</pre>
+            </details>
+            }
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
     }
   </div>
 </div>
-

@@ -21,24 +21,26 @@ class APIMonitorAdmin(admin.ModelAdmin):
     ordering = ('-timestamp',)
     
     fieldsets = (
-        ('Request Information', {
+        ('Información de la solicitud', {
             'fields': ('request_id', 'timestamp', 'method', 'endpoint', 'status_code')
         }),
-        ('Performance', {
+        ('Rendimiento', {
             'fields': ('response_time_ms',)
         }),
-        ('User Information', {
+        ('Información del usuario', {
             'fields': ('user', 'ip_address', 'user_agent')
         }),
-        ('Error Details', {
+        ('Detalles del error', {
             'fields': ('error_message', 'stack_trace'),
             'classes': ('collapse',)
         }),
-        ('Request Body', {
+        ('Cuerpo de la solicitud', {
             'fields': ('request_body',),
             'classes': ('collapse',)
         }),
     )
     
     def has_add_permission(self, request):
-        return False  # Prevent manual creation - only via middleware
+        return False  
+    # Previene la creación manual, solo lo permite a través del middleware
+    

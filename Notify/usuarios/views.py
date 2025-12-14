@@ -17,11 +17,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class UserLogIn(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                     context={'request': request})
+        serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        # Use get_or_create to create token if it doesn't exist
         token, created = Token.objects.get_or_create(user=user)
         if created:
             logCrud(f"Token created for user: {user.username}")
@@ -37,22 +35,16 @@ class UserLogIn(ObtainAuthToken):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
-    """
-    Register a new user. No authentication required.
-    Supports both JSON and multipart/form-data (for file uploads).
-    Only administrators can set is_staff and is_superuser permissions.
-    """
-    # Handle both JSON and multipart/form-data
+
     data = request.data.copy()
     files = request.FILES
     
-    # Pass request context to serializer for permission validation
     serializer = UserRegistrationSerializer(data=data, files=files, context={'request': request})
     if serializer.is_valid():
         user = serializer.save()
         token = Token.objects.get(user=user)
         
-        # Log registration with admin status if applicable
+        # Registrar estado de administrador si aplica
         admin_status = ""
         if user.is_staff or user.is_superuser:
             admin_status = f" (Admin: staff={user.is_staff}, superuser={user.is_superuser})"

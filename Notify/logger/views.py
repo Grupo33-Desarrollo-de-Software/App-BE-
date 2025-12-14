@@ -1,15 +1,11 @@
-from django.shortcuts import render
 from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta
-from django.db.models import Count, Avg, Q, Sum
-from django.db.models.functions import TruncHour
-
+from django.db.models import Count, Avg, Q
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework import status
-
 from .models import Log, APIMonitor
 from .serializers import LogSerializer, APIMonitorSerializer, MonitoringMetricsSerializer
 
@@ -79,78 +75,59 @@ def getlogs(request, logtype):
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def monitoring_dashboard(request):
-    """
-    Admin-only API monitoring dashboard endpoint.
-    Returns comprehensive metrics for API health monitoring.
-    """
+    # Endpoint del panel de monitoreo de API solo para administradores.
+    # Retorna métricas completas para el monitoreo de salud de la API.
     try:
-        # Debug: Log user information
+        # Registrar información del usuario
         from logging import getLogger
         logger = getLogger(__name__)
         user = request.user
-        logger.info(f"Monitoring dashboard access attempt - User: {user.username if hasattr(user, 'username') else 'Anonymous'}, "
+        logger.info(f"Intento de acceso al panel de monitoreo - Usuario: {user.username if hasattr(user, 'username') else 'Anónimo'}, "
                    f"is_staff: {user.is_staff if hasattr(user, 'is_staff') else 'N/A'}, "
                    f"is_superuser: {user.is_superuser if hasattr(user, 'is_superuser') else 'N/A'}, "
                    f"is_authenticated: {user.is_authenticated if hasattr(user, 'is_authenticated') else 'N/A'}")
         
-        # Get time range (default: last 24 hours)
+        # Obtener rango de tiempo (por defecto: últimas 24 horas)
         hours = int(request.GET.get('hours', 24))
         time_threshold = timezone.now() - timedelta(hours=hours)
         
-        # Filter API monitor records within time range
+        # Filtrar registros de monitoreo de API dentro del rango de tiempo
         recent_requests = APIMonitor.objects.filter(timestamp__gte=time_threshold)
         
-        # Total Request Count
+        # Conteo total de solicitudes
         total_requests = recent_requests.count()
         
-        # Average Response Time
+        # Tiempo promedio de respuesta
         avg_response_time = recent_requests.aggregate(
             avg_time=Avg('response_time_ms')
         )['avg_time'] or 0
         
-        # Error Count & Rate
+        # Conteo y tasa de errores
         error_requests = recent_requests.filter(status_code__gte=400)
         error_count = error_requests.count()
         error_rate = (error_count / total_requests * 100) if total_requests > 0 else 0
         
-        # Error breakdown by status code
+        # Desglose de errores por código de estado
         error_breakdown = error_requests.values('status_code').annotate(
             count=Count('id')
         ).order_by('-count')
         
-        # Status code distribution
+        # Distribución de códigos de estado
         status_distribution = recent_requests.values('status_code').annotate(
             count=Count('id')
         ).order_by('status_code')
         
-        # Response time distribution (for charting)
-        response_time_stats = recent_requests.aggregate(
-            min_time=Avg('response_time_ms'),  # Using Avg for simplicity, could use Min/Max
-            max_time=Avg('response_time_ms'),
-            p50=Avg('response_time_ms'),  # Simplified - in production, use percentile
-            p95=Avg('response_time_ms'),
-            p99=Avg('response_time_ms'),
-        )
-        
-        # Requests per hour (for time series chart)
-        requests_per_hour = recent_requests.annotate(
-            hour=TruncHour('timestamp')
-        ).values('hour').annotate(
-            count=Count('id'),
-            avg_response_time=Avg('response_time_ms')
-        ).order_by('hour')
-        
-        # Top endpoints by request count
+        # Endpoints principales por conteo de solicitudes
         top_endpoints = recent_requests.values('endpoint', 'method').annotate(
             count=Count('id'),
             avg_response_time=Avg('response_time_ms'),
             error_count=Count('id', filter=Q(status_code__gte=400))
         ).order_by('-count')[:10]
         
-        # Recent errors (last 20)
+        # Errores recientes (últimos 20)
         recent_errors = error_requests.select_related('user').order_by('-timestamp')[:20]
         
-        # Build response data
+        # Construir datos de respuesta
         metrics = {
             'time_range_hours': hours,
             'total_requests': total_requests,
@@ -159,19 +136,6 @@ def monitoring_dashboard(request):
             'error_rate_percent': round(error_rate, 2),
             'error_breakdown': list(error_breakdown),
             'status_distribution': list(status_distribution),
-            'response_time_stats': {
-                'min': round(response_time_stats['min_time'] or 0, 2),
-                'max': round(response_time_stats['max_time'] or 0, 2),
-                'avg': round(avg_response_time, 2),
-            },
-            'requests_per_hour': [
-                {
-                    'hour': item['hour'].isoformat() if item['hour'] else None,
-                    'count': item['count'],
-                    'avg_response_time': round(item['avg_response_time'] or 0, 2)
-                }
-                for item in requests_per_hour
-            ],
             'top_endpoints': [
                 {
                     'endpoint': item['endpoint'],
@@ -188,24 +152,22 @@ def monitoring_dashboard(request):
         return Response(metrics, status=status.HTTP_200_OK)
     
     except Exception as e:
-        # Log the error for debugging
+        # Registrar el error para depuración
         from logging import getLogger
         logger = getLogger(__name__)
-        logger.error(f"Error in monitoring_dashboard: {str(e)}", exc_info=True)
+        logger.error(f"Error en monitoring_dashboard: {str(e)}", exc_info=True)
         
-        # Return error response
+        # Retornar error
         return Response({
-            'error': 'An error occurred while loading monitoring data',
-            'detail': str(e) if settings.DEBUG else 'Please check server logs'
+            'error': 'Ocurrió un error al cargar los datos de monitoreo',
+            'detail': str(e) if settings.DEBUG else 'Por favor verifique los logs del servidor'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def monitoring_details(request, request_id):
-    """
-    Get detailed information about a specific API request by request_id.
-    """
+
     try:
         monitor = APIMonitor.objects.select_related('user').get(request_id=request_id)
         serializer = APIMonitorSerializer(monitor)
@@ -221,7 +183,7 @@ def monitoring_details(request, request_id):
 @permission_classes([IsAdminUser])
 def monitoring_errors(request):
     """
-    Get list of errors with filtering options.
+    Obtener lista de errores con opciones de filtrado.
     """
     hours = int(request.GET.get('hours', 24))
     status_code = request.GET.get('status_code')
@@ -238,8 +200,23 @@ def monitoring_errors(request):
     if endpoint:
         errors = errors.filter(endpoint__icontains=endpoint)
     
-    errors = errors.order_by('-timestamp')[:100]  # Limit to 100 most recent
+    errors = errors.order_by('-timestamp')[:100]  # Limitar a los 100 más recientes
     
     serializer = APIMonitorSerializer(errors, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def monitoring_logs(request):
+    #Obtener las últimas 100 entradas de la bitácora.
+    try:
+        logs = Log.objects.all().order_by('-datetime')[:100]
+        serializer = LogSerializer(logs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            'error': 'Error al obtener las entradas de la bitácora',
+            'detail': str(e) if settings.DEBUG else 'Por favor verifique los logs del servidor'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
