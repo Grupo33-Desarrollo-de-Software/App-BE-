@@ -9,7 +9,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // Componentes de la aplicación
 import { BuscarAlbumComponent } from './buscar-album/buscar-album.component';
-import { RegisterComponent } from './register/register.component';
 import { LoginComponent } from './login/login.component';
 import { MonitoringComponent } from './monitoring/monitoring.component';
 
@@ -27,7 +26,6 @@ import { MatButtonModule } from '@angular/material/button';
     BrowserAnimationsModule,
     HttpClientModule,
     BuscarAlbumComponent,
-    RegisterComponent,
     LoginComponent,
     MonitoringComponent,
     MatToolbarModule,

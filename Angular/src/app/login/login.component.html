@@ -15,20 +15,20 @@
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
         <div>
-          <label for="username" class="block text-sm font-medium mb-2">Username</label>
+          <label for="username" class="block text-sm font-medium mb-2">Nombre de usuario</label>
           <input type="text" id="username" formControlName="username"
             class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1DB954] focus:border-[#1DB954] text-white placeholder-gray-400"
-            placeholder="Enter your username" />
+            placeholder="Ingrese su nombre de usuario" />
           @if (isFieldInvalid('username')) {
           <p class="mt-1 text-sm text-red-300">{{ getErrorMessage('username') }}</p>
           }
         </div>
 
         <div>
-          <label for="password" class="block text-sm font-medium mb-2">Password</label>
+          <label for="password" class="block text-sm font-medium mb-2">Contraseña</label>
           <input type="password" id="password" formControlName="password"
             class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1DB954] focus:border-[#1DB954] text-white placeholder-gray-400"
-            placeholder="Enter your password" />
+            placeholder="Ingrese su contraseña" />
           @if (isFieldInvalid('password')) {
           <p class="mt-1 text-sm text-red-300">{{ getErrorMessage('password') }}</p>
           }
@@ -37,20 +37,11 @@
         <button type="submit" [disabled]="isLoading() || loginForm.invalid"
           class="w-full py-3 bg-[#1DB954] hover:bg-[#1ed760] disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg font-semibold text-black transition-colors">
           @if (isLoading()) {
-          <span>Signing In...</span>
+          <span>Iniciando sesión...</span>
           } @else {
-          <span>Sign In</span>
+          <span>Iniciar sesión</span>
           }
         </button>
-
-        <div class="text-center">
-          <p class="text-white/70">
-            Don't have an account?
-            <a routerLink="/register" class="text-[#1DB954] hover:text-[#1ed760] font-medium ml-1">
-              Sign Up
-            </a>
-          </p>
-        </div>
       </form>
     </div>
   </div>

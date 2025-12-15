@@ -1,4 +1,4 @@
-.active {
+button {
   background-color: rgba(29, 185, 84, 0.2) !important;
   color: #1DB954 !important;
 }
@@ -8,25 +8,4 @@ mat-toolbar {
   top: 0;
   z-index: 1000;
   background-color: #000000 !important;
-}
-
-mat-toolbar button.mat-button,
-mat-toolbar button.mat-button-base {
-  color: #d1d5db !important;
-}
-
-mat-toolbar button.mat-button:hover,
-mat-toolbar button.mat-button-base:hover {
-  color: #ffffff !important;
-  background-color: rgba(31, 41, 55, 0.5) !important;
-}
-
-mat-toolbar button.mat-button.active,
-mat-toolbar button.mat-button-base.active {
-  color: #1DB954 !important;
-  background-color: rgba(29, 185, 84, 0.2) !important;
-}
-
-mat-toolbar span {
-  color: #d1d5db !important;
 }
