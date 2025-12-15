@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from django.contrib.auth.hashers import make_password
 from .models import Usuario
+
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -11,12 +11,21 @@ class UserSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Usuario
-        fields = ('id', 'username', 'first_name', 'last_name', 'bio', 'foto', 'notifPorEmail',
-                  'notifRecomendaciones', 'notifGenerales')
+        fields = ('id', 'username', 'first_name', 'last_name', 'bio', 'foto', 'notifPorMail',
+                  'notifRecomendaciones', 'notifGenerales', 'password')
         read_only_fields = ('username', )
 
     def create(self, validated_data):
-        user = super().create(validated_data)
-        user.set_password(validated_data['password'])
+        # Extraer la contraseña antes de crear el usuario
+        password = validated_data.pop('password', None)
+        if not password:
+            raise serializers.ValidationError({'password': 'La contraseña es requerida'})
+        
+        # Crear usuario sin contraseña primero
+        user = Usuario.objects.create(**validated_data)
+        
+        # Hashear y establecer contraseña correctamente
+        user.set_password(password)
         user.save()
+        
         return user

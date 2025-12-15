@@ -1,3 +1,4 @@
+// Define la estructura de un álbum
 export interface Album {
   titulo: string;
   artista: string;
@@ -6,7 +7,7 @@ export interface Album {
   oyentes: number;
   info: string;
   cantidadCanciones: number;
-  foto: string; // Es un charfield ya que refiere al link de la imagen
+  foto: string; // URL de la imagen
   etiquetas: string;
-  duracion: number; // En segundos
+  duracion: number; // Duración en segundos
 }

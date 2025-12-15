@@ -17,7 +17,6 @@ def index(request):
             return redirect("/home")
         else:
             return redirect("")
-    # No backend authenticated the credentials
     """try:
         busqueda = request.GET["album"]
 

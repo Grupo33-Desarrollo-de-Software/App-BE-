@@ -10,7 +10,7 @@ describe('BuscarAlbumComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [BuscarAlbumComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(BuscarAlbumComponent);
     component = fixture.componentInstance;

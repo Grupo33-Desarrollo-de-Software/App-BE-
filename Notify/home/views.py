@@ -1,13 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-import requests
 from django.template import loader
-import json
 from notificaciones.models import Notificacion
 from usuarios.models import Usuario
 from django.shortcuts import redirect
 from django.contrib.auth import logout
-# import apiExterna.apiExterna as api
 
 def index(request):
     if request.user.is_authenticated:

@@ -1,29 +1,35 @@
+// Módulo principal de la aplicación
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 
-import { AppRoutingModule } from './app-routing.module'; // <-- IMPORTA ESTE
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-// Importa el componente standalone
+// Componentes de la aplicación
 import { BuscarAlbumComponent } from './buscar-album/buscar-album.component';
+import { LoginComponent } from './login/login.component';
+import { MonitoringComponent } from './monitoring/monitoring.component';
 
-// Importa el módulo de Angular Material
+// Módulos de Material Design
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
     AppComponent
-    // Recuerda, BuscarAlbumComponent NO va aquí
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule, // <-- AÑÁDELO AQUÍ
+    AppRoutingModule,
     BrowserAnimationsModule,
-    HttpClientModule, // <-- AÑÁDELO AQUÍ para habilitar HttpClient
-    BuscarAlbumComponent, // <-- AÑÁDELO AQUÍ (porque es standalone)
-    MatToolbarModule // <-- AÑÁDELO AQUÍ
+    HttpClientModule,
+    BuscarAlbumComponent,
+    LoginComponent,
+    MonitoringComponent,
+    MatToolbarModule,
+    MatButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.http import HttpResponse
 from requests import Response
 from followlists.models import Follow
@@ -9,14 +8,11 @@ from django.template import loader
 import apiExterna.apiExterna as api
 from datetime import datetime
 from django.shortcuts import redirect
-from rest_framework import viewsets
-from .serializers import AlbumSerializer
 from notificaciones.actions import crearNotificacion
-from urllib.parse import urlparse
 from apiExterna.apiExterna import sanitizarURL
-
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 
 from logger.views import logAction, logError
 
@@ -89,6 +85,7 @@ def parsearDuracion(albumParseado):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def buscarAlbums(request, album):
     usuario = request.user
     a = api.buscarAlbums(album)
@@ -124,6 +121,7 @@ def persistirAlbum(artista,album):
     return artistaObjeto, albumObjeto
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def getInfo(request, artista, album):
     usuario = request.user
 
@@ -155,12 +153,12 @@ def dejarDeSeguir(request, artista, album):
 
     usuario = request.user
     if usuario == None:
-        logError("un usuario anónimo intentó dejar de seguir un album")
+        logError("Un usuario anónimo intentó dejar de seguir un album")
         return Response({ "error": "Login required"})
     a = api.buscarAlbum(artista, album)
     _, album = persistirAlbum(artista, a)
     f, _ = Follow.objects.get_or_create(usuario=usuario, album=album)
     f.delete()
 
-    logAction(f"el usuario {usuario.username} dejó de seguir el album {album.title}")
+    logAction(f"El usuario {usuario.username} dejó de seguir el album {album.title}")
     return Response({"success": "Unfollowed successfully"})
