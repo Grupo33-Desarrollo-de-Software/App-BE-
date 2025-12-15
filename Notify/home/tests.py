@@ -7,7 +7,7 @@ User = get_user_model()
 
 
 class HomeNotificationTests(TestCase):
-    # clase para testear: mostrar notificaciones en pantalla principal
+    # clase para testear:  mostrar notificaciones en pantalla principal
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(
