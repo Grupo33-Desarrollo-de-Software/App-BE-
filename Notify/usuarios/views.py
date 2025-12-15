@@ -1,13 +1,12 @@
 from django.contrib.auth.models import AnonymousUser
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 from .models import Usuario
 from .serializers import UserSerializer
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
 
 from logger.views import logCrud
 
@@ -25,8 +24,19 @@ class UserLogIn(ObtainAuthToken):
         )
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
-        token = Token.objects.get(user=user)
-        return Response({"token": token.key, "id": user.pk, "username": user.username})
+        token, created = Token.objects.get_or_create(user=user)
+        if created:
+            logCrud(f"Token created for user: {user.username}")
+        logCrud(f"User logged in: {user.username}")
+        return Response(
+            {
+                "token": token.key,
+                "id": user.pk,
+                "username": user.username,
+                "is_staff": user.is_staff,
+                "is_superuser": user.is_superuser,
+            }
+        )
 
 
 @api_view(["POST"])
@@ -35,6 +45,8 @@ def configurar(request):
     usuario = request.user
     if type(usuario) == AnonymousUser:
         return Response({"error": "Login required"})
+
+    print(usuario)
 
     username = request.data.get("username")
     if username:

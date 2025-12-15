@@ -1,4 +1,5 @@
 from background_task import background
+from background_task.models import Task
 from .actions import recomendarAlbums, nuevoDeArtista
 from usuarios.models import Usuario
 from followlists.models import Follow
@@ -6,8 +7,7 @@ from followlists.models import Follow
 
 def _run_task_notificaciones():
     for u in Usuario.objects.all():
-        f = Follow.objects.filter(usuario=u)
-        if f:
+        if Follow.objects.filter(usuario=u).exists():
             recomendarAlbums(u)
             nuevoDeArtista(u)
 

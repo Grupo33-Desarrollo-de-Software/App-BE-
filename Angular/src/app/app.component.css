@@ -1,0 +1,11 @@
+button {
+  background-color: rgba(29, 185, 84, 0.2) !important;
+  color: #1DB954 !important;
+}
+
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #000000 !important;
+}
