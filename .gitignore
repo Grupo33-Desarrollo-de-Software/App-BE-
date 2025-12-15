@@ -6,4 +6,4 @@ myenv/
 .venv/
 Notify/log/
 Angular/angular/node_modules
-
+Notify/apiExterna/key.txt

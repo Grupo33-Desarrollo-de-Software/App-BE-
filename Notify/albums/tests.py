@@ -11,11 +11,11 @@ import json
 
 User = get_user_model()
 
-#no hay q borrar las cosas dsp porq el testcase de djago los borra despues
+# no hay q borrar las cosas dsp porq el testcase de django los borra despues
 
 
 class AlbumGetInfoTest(TestCase):
-    #clase para testear: Obtener info. de albumes
+    # clase para testear: Obtener info. de albumes
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(
@@ -69,8 +69,9 @@ class AlbumGetInfoTest(TestCase):
         self.assertEqual(response.data["reproducciones"], "1000000")
         mock_buscar_album.assert_called_once_with("Test Artist", "Test Album")
         mock_persistir.assert_called_once_with("Test Artist", mock_album_data)
-        mock_log_action.assert_called_once_with("El usuario testuser obtuvo información de test")
-
+        mock_log_action.assert_called_once_with(
+            "El usuario testuser obtuvo información de test"
+        )
 
     @patch("albums.views.logAction")
     @patch("albums.views.api.buscarAlbum")
@@ -80,22 +81,24 @@ class AlbumGetInfoTest(TestCase):
         self.client.force_authenticate(user=self.user)
 
         with self.assertRaises(Exception):
-            response = self.client.get("/api/v1/album/Nonexistent%20Artist/Nonexistent%20Album")
+            response = self.client.get(
+                "/api/v1/album/Nonexistent%20Artist/Nonexistent%20Album"
+            )
 
 
 class AlbumSearchTest(TestCase):
-    #clase para testear: Buscar álbumes
+    # clase para testear: Buscar álbumes
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(
             username="testuser", password="testpass123"
         )
 
-    #el patch es para que actuen como el método que se utilizó en views, sin tener que llamar a esa función en si
+    # el patch es para que actuen como el método que se utilizó en views, sin tener que llamar a esa función en si
     @patch("albums.views.logAction")
     @patch("albums.views.api.buscarAlbums")
     def test_search_albums_success(self, mock_buscar_albums, mock_log_action):
-        #mock de la respuesta de la API
+        # mock de la respuesta de la API
         mock_results = [
             {
                 "titulo": "Test Album 1",
@@ -112,23 +115,23 @@ class AlbumSearchTest(TestCase):
         ]
         mock_buscar_albums.return_value = mock_results
 
-        #mandamos una request con el user autenticado
+        # mandamos una request con el user autenticado
         self.client.force_authenticate(user=self.user)
         response = self.client.get("/api/v1/albums/test%20album")
 
-        #nos fijamos q este todo igual
+        # nos fijamos q este todo igual
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response.data[0]["titulo"], "Test Album 1")
         self.assertEqual(response.data[1]["titulo"], "Test Album 2")
         mock_buscar_albums.assert_called_once_with("test album")
-        #nos fijamos q log_action fue llamada una vez con lo q esta en el str
+        # nos fijamos q log_action fue llamada una vez con lo q esta en el str
         mock_log_action.assert_called_once_with("El usuario testuser buscó test")
 
     @patch("albums.views.logAction")
     @patch("albums.views.api.buscarAlbums")
     def test_search_albums_anonymous_user(self, mock_buscar_albums, mock_log_action):
-        #mock de la respuesta de la API
+        # mock de la respuesta de la API
         mock_results = [
             {
                 "titulo": "Test Album",
@@ -139,21 +142,21 @@ class AlbumSearchTest(TestCase):
         ]
         mock_buscar_albums.return_value = mock_results
 
-        #mandamos una request sin el user autenticado
+        # mandamos una request sin el user autenticado
         response = self.client.get("/api/v1/albums/test")
 
-        #nos fijamos q este todo igual
+        # nos fijamos q este todo igual
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        #se fija q se haya llamado UNA vez y con el "test" que sale del apiv1albumstest de arriba
+        # se fija q se haya llamado UNA vez y con el "test" que sale del apiv1albumstest de arriba
         mock_buscar_albums.assert_called_once_with("test")
-        #el "un usuario etc" sale del log_action en views 
+        # el "un usuario etc" sale del log_action en views
         mock_log_action.assert_called_once_with("Un usuario anónimo buscó test")
 
 
 class AlbumPersistInfoTest(TestCase):
-    #clase para testear: Persistir info. de álbumes
-    #testeamos persistir info del album cuando hay un nuevo album y artista y cuando solamente hay nuevo album
+    # clase para testear: Persistir info. de álbumes
+    # testeamos persistir info del album cuando hay un nuevo album y artista y cuando solamente hay nuevo album
     def setUp(self):
         self.client = APIClient()
 
@@ -163,7 +166,7 @@ class AlbumPersistInfoTest(TestCase):
     def test_persist_album_new_artist_and_album(
         self, mock_parsear_artista, mock_get_artista, mock_log_crud
     ):
-        #mockeamos la rta de la api
+        # mockeamos la rta de la api
         mock_artista_json = {
             "artist": {
                 "name": "New Artist",
@@ -177,7 +180,7 @@ class AlbumPersistInfoTest(TestCase):
                 "bio": {"summary": "Artist summary"},
             }
         }
-        #se lo pasamos al mock
+        # se lo pasamos al mock
         mock_get_artista.return_value = mock_artista_json
         mock_parsear_artista.return_value = {
             "nombre": "New Artist",
@@ -187,12 +190,12 @@ class AlbumPersistInfoTest(TestCase):
             "resumen": "Artist summary",
         }
 
-        #la data del album q hay q guardar
+        # la data del album q hay q guardar
         album_data = {
             "titulo": "New Album",
             "artista": "New Artist",
             "fechaLanzamiento": "15 Mar 2021",
-            "reproducciones": 2000000,  
+            "reproducciones": 2000000,
             "oyentes": "100000",
             "info": "Album description",
             "cantidadCanciones": 15,
@@ -203,7 +206,7 @@ class AlbumPersistInfoTest(TestCase):
 
         artista_obj, album_obj = persistirAlbum("New Artist", album_data)
 
-        #nos fijamos q este todo bien
+        # nos fijamos q este todo bien
         self.assertIsNotNone(artista_obj)
         self.assertIsNotNone(album_obj)
         self.assertEqual(artista_obj.name, "New Artist")
@@ -212,10 +215,12 @@ class AlbumPersistInfoTest(TestCase):
         self.assertEqual(album_obj.length, 50)
         self.assertEqual(album_obj.playcount, 2000000)
 
-        #nos fijamos q esten en la db
+        # nos fijamos q esten en la db
         self.assertTrue(Artista.objects.filter(name="New Artist").exists())
         self.assertTrue(Album.objects.filter(title="New Album").exists())
-        mock_log_crud.assert_called_once_with("El album New Album fue agregado a la base de datos.")
+        mock_log_crud.assert_called_once_with(
+            "El album New Album fue agregado a la base de datos."
+        )
 
     @patch("albums.views.logCrud")
     @patch("albums.views.api.getArtista")
@@ -223,8 +228,8 @@ class AlbumPersistInfoTest(TestCase):
     def test_persist_album_existing_artist_new_album(
         self, mock_parsear_artista, mock_get_artista, mock_log_crud
     ):
-        #lo mismo q el de arriba pero con un artista q ya existe
-        #creamos dicho artista
+        # lo mismo q el de arriba pero con un artista q ya existe
+        # creamos dicho artista
         existing_artist = Artista.objects.create(
             name="Existing Artist",
             image="http://example.com/artist.jpg",
@@ -233,7 +238,7 @@ class AlbumPersistInfoTest(TestCase):
             summary="Existing summary",
         )
 
-        #mockeamos la rta de la api
+        # mockeamos la rta de la api
         mock_artista_json = {
             "artist": {
                 "name": "Existing Artist",
@@ -256,7 +261,7 @@ class AlbumPersistInfoTest(TestCase):
             "resumen": "Existing summary",
         }
 
-        #data del album
+        # data del album
         album_data = {
             "titulo": "New Album by Existing Artist",
             "artista": "Existing Artist",
@@ -272,26 +277,28 @@ class AlbumPersistInfoTest(TestCase):
 
         artista_obj, album_obj = persistirAlbum("Existing Artist", album_data)
 
-        #assertions de q todo este bien
+        # assertions de q todo este bien
         self.assertEqual(
             artista_obj.id, existing_artist.id
         )  # Should be the same artist
         self.assertEqual(album_obj.title, "New Album by Existing Artist")
         self.assertEqual(album_obj.autor.id, existing_artist.id)
 
-        #nos fijamos q haya un solo artista en la db, q no lo haya agregado
+        # nos fijamos q haya un solo artista en la db, q no lo haya agregado
         self.assertEqual(Artista.objects.filter(name="Existing Artist").count(), 1)
 
-        #nos fijamos q haya un nuevo album en la db
+        # nos fijamos q haya un nuevo album en la db
         self.assertTrue(
             Album.objects.filter(title="New Album by Existing Artist").exists()
         )
-        mock_log_crud.assert_called_once_with("El album New Album by Existing Artist fue agregado a la base de datos.")
+        mock_log_crud.assert_called_once_with(
+            "El album New Album by Existing Artist fue agregado a la base de datos."
+        )
 
 
 class IntegrationTests(TestCase):
-    #tests de integración teniendo en cuenta la busqueda de un álbum, obtener info y guardarla en la db
-   
+    # tests de integración teniendo en cuenta la busqueda de un álbum, obtener info y guardarla en la db
+
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(
@@ -304,7 +311,12 @@ class IntegrationTests(TestCase):
     @patch("albums.views.api.getArtista")
     @patch("albums.views.api.parsearArtista2")
     def test_search_then_get_info_then_persist(
-        self, mock_parsear_artista, mock_get_artista, mock_buscar_album, mock_log_action, mock_log_crud
+        self,
+        mock_parsear_artista,
+        mock_get_artista,
+        mock_buscar_album,
+        mock_log_crud,
+        mock_log_action,
     ):
         mock_artista_json = {
             "artist": {
@@ -332,7 +344,7 @@ class IntegrationTests(TestCase):
             "titulo": "Integration Album",
             "artista": "Integration Artist",
             "fechaLanzamiento": "10 May 2022",
-            "reproducciones": 2500000,  
+            "reproducciones": 2500000,
             "oyentes": "125000",
             "info": "Integration album description",
             "cantidadCanciones": 16,
@@ -344,26 +356,30 @@ class IntegrationTests(TestCase):
 
         self.client.force_authenticate(user=self.user)
 
-        #buscamos la info del album, lo que la termina guardando en la db
+        # buscamos la info del album, lo que la termina guardando en la db
         response = self.client.get(
             "/api/v1/album/Integration%20Artist/Integration%20Album"
         )
 
-        #assertions de q todo este bien
+        # assertions de q todo este bien
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["titulo"], "Integration Album")
 
-        #assertions de q se guarde en la db
+        # assertions de q se guarde en la db
         self.assertTrue(Artista.objects.filter(name="Integration Artist").exists())
         self.assertTrue(Album.objects.filter(title="Integration Album").exists())
 
-        #lo obtenemos de la db y nos fijamos q este todo bien
+        # lo obtenemos de la db y nos fijamos q este todo bien
         persisted_album = Album.objects.get(title="Integration Album")
         self.assertEqual(persisted_album.tags, "fusion")
         self.assertEqual(persisted_album.length, 55)
         self.assertEqual(persisted_album.playcount, 2500000)
         self.assertEqual(persisted_album.autor.name, "Integration Artist")
 
-        #nos fijamos q los logs esten bien
-        mock_log_action.assert_called_once_with("El usuario testuser obtuvo información de Integration Album")
-        mock_log_crud.assert_called_once_with("El album Integration Album fue agregado a la base de datos.")
+        # nos fijamos q los logs esten bien
+        mock_log_action.assert_called_once_with(
+            "El usuario testuser obtuvo información de Integration Album"
+        )
+        mock_log_crud.assert_called_once_with(
+            "El album Integration Album fue agregado a la base de datos."
+        )

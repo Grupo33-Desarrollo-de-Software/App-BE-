@@ -11,33 +11,30 @@ from rest_framework.decorators import api_view
 
 from logger.views import logCrud
 
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
+
 class UserLogIn(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                     context={'request': request})
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
+        user = serializer.validated_data["user"]
         token = Token.objects.get(user=user)
-        return Response({
-            'token': token.key,
-            'id': user.pk,
-            'username': user.username
-        })
+        return Response({"token": token.key, "id": user.pk, "username": user.username})
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 def configurar(request):
 
     usuario = request.user
-    print(usuario)
     if type(usuario) == AnonymousUser:
-        return Response({ "error": "Login required"})
-
-    print(usuario)
+        return Response({"error": "Login required"})
 
     username = request.data.get("username")
     if username:
@@ -63,14 +60,18 @@ def configurar(request):
     notificaciones = request.data.get("notificaciones")
     if notificaciones:
         notifMail = notificaciones.get("mail", usuario.notifPorMail)
-        notifRecomendaciones = notificaciones.get("recomendaciones", usuario.notifRecomendaciones)
+        notifRecomendaciones = notificaciones.get(
+            "recomendaciones", usuario.notifRecomendaciones
+        )
         notifGenerales = notificaciones.get("generales", usuario.notifGenerales)
 
         usuario.notifPorMail = notifMail
         usuario.notifRecomendaciones = notifRecomendaciones
         usuario.notifGenerales = notifGenerales
 
-        logCrud(f"El usuario {usuario.username} cambió sus preferencias de notificaciones")
+        logCrud(
+            f"El usuario {usuario.username} cambió sus preferencias de notificaciones"
+        )
 
     usuario.save()
 
