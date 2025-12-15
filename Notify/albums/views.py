@@ -11,7 +11,8 @@ from django.shortcuts import redirect
 from notificaciones.actions import crearNotificacion
 from apiExterna.apiExterna import sanitizarURL
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 
 from logger.views import logAction, logError, logCrud
 
@@ -176,5 +177,5 @@ def dejarDeSeguir(request, artista, album):
     f, _ = Follow.objects.get_or_create(usuario=usuario, album=album)
     f.delete()
 
-    logAction(f"El usuario {usuario.username} dejó de seguir el album {album.title}")
+    logAction(f"el usuario {usuario.username} dejó de seguir el album {album.title}")
     return Response({"success": "Unfollowed successfully"})

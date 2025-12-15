@@ -39,6 +39,8 @@ urlpatterns = [
     path('api/v1/', include('followlists.urls')),
     path('api/v1/', include('usuarios.urls')),
     path('api/v1/logger/', include('logger.urls')),
+    # Compatibilidad con rutas antiguas usadas en tests (/api/v1/logs/<tipo>)
+    path('api/v1/', include('logger.urls')),
     path('api/v1/', include(router.urls)),
     path('api-user-login/', UserLogIn.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
