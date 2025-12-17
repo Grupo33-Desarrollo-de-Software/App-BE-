@@ -48,7 +48,7 @@ class NotificacionesTests(TestCase):
             autor=self.artista
         )
 
-    @patch("notificaciones.actions.send_mail")
+    @patch("notificaciones.strategies.send_mail")
     def test_send_notification_by_email(self, mock_send_mail):
         titulo = "Test Notification"
         cuerpo = "This is a test notification"
@@ -102,7 +102,7 @@ class NotificacionesTests(TestCase):
         response = self.client.post("/api/v1/configurar", data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @patch("notificaciones.actions.send_mail")
+    @patch("notificaciones.strategies.send_mail")
     @patch("notificaciones.actions.apiExterna.getTopAlbumsFromArtista")
     @patch("notificaciones.actions.apiExterna.getAlbumsSimilares")
     def test_generate_notifications(self, mock_get_similares, mock_get_top, mock_send_mail):

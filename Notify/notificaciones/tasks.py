@@ -15,6 +15,8 @@ def _run_task_notificaciones():
 @background(schedule=5)
 def taskNotificaciones_bg():
     _run_task_notificaciones()
+    # Re-programar la tarea para que se ejecute cada 5 segundos
+    taskNotificaciones_bg(schedule=5)
 
 
 def taskNotificaciones(*args, **kwargs):

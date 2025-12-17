@@ -4,86 +4,48 @@ from notificaciones.models import Notificacion
 from followlists.models import Follow
 from albums.models import Album
 from artistas.models import Artista
-from django.core.mail import send_mail
 from datetime import datetime, timedelta
+from notificaciones.strategies import (
+    NotificationContext,
+    DatabaseNotificationStrategy,
+    EmailNotificationStrategy,
+)
 
 
 # Create your views here.
 
 
 def crearNotificacion(usuario, titulo, cuerpo):
-    # Siempre crear la notificación en la base de datos
-    Notificacion.objects.create(
-        titulo=titulo,
-        cuerpo=cuerpo,
-        usuario=usuario,
-    )
+    """
+    Crea y envía una notificación al usuario usando las estrategias configuradas.
 
-    # Enviar email solo si el usuario tiene habilitado el envío por mail
-    if usuario.notifPorMail and usuario.email:
-        send_mail(
-            titulo,
-            cuerpo,
-            "notifymusic33@gmail.com",
-            [usuario.email],
-            fail_silently=False,
-        )
+    Esta función utiliza el patrón Strategy para permitir agregar nuevos métodos
+    de notificación sin modificar el código existente.
+
+    Args:
+        usuario: Instancia del modelo Usuario
+        titulo: Título de la notificación
+        cuerpo: Cuerpo/contenido de la notificación
+    """
+    # Crear el contexto de notificaciones con las estrategias disponibles
+    context = NotificationContext()
+
+    # Agregar estrategias: primero BD (siempre se guarda), luego email (si está habilitado)
+    context.add_strategy(DatabaseNotificationStrategy())
+    context.add_strategy(EmailNotificationStrategy())
+
+    # Enviar la notificación usando todas las estrategias configuradas
+    context.send_notification(usuario, titulo, cuerpo)
 
 
 def recomendarAlbums(usuario):
-    if not usuario.notifRecomendaciones:
-        return
+    from notificaciones.strategies import RecommendationNotificationStrategy
 
-    follows = Follow.objects.filter(usuario=usuario.id)
-    if not follows.exists():
-        return
-
-    albums = []
-    for f in follows:
-        a = Album.objects.filter(id=f.album.id).first()
-        if a:
-            albums.append(a)
-
-    if not albums:
-        return
-
-    artistas = []
-    for a in albums:
-        if a and a.autor:
-            artista = Artista.objects.filter(id=a.autor.id).first()
-            if artista:
-                artistas.append(artista)
-
-    if not artistas:
-        return
-
-    recomendaciones = []
-    for artista in artistas:
-        try:
-            r = apiExterna.getAlbumsSimilares(artista.name)
-            if r:
-                recomendaciones.extend(r)
-        except Exception as e:
-            print(f"Error obteniendo álbumes similares para {artista.name}: {e}")
-            continue
-
-    if not recomendaciones:
-        return
-
-    random.seed()
-    random.shuffle(recomendaciones)
-
-    try:
-        recomendaciones = recomendaciones[:5]
-    except Exception:
-        pass
-
-    titulo = "Tal vez te gusten los siguientes álbumes 🧐"
+    titulo = ""
     cuerpo = ""
-    for r in recomendaciones:
-        cuerpo += f"{r['titulo']} - {r['artista']}<br/>"
 
-    crearNotificacion(usuario, titulo, cuerpo)
+    strategy = RecommendationNotificationStrategy()
+    return strategy.send(usuario, titulo, cuerpo)
 
 
 def nuevoDeArtista(usuario):
