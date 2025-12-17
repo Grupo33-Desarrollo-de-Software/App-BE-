@@ -17,12 +17,4 @@ def index(request):
             return redirect("/home")
         else:
             return redirect("")
-    """try:
-        busqueda = request.GET["album"]
 
-        context = {"resultados": resultados}
-    except:
-        context = {"resultados": []}
-    finally:
-        template = loader.get_template("albums/buscarAlbum.html")
-        return HttpResponse(template.render(context, request))"""

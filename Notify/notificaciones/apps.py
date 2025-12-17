@@ -7,13 +7,12 @@ class NotificacionesConfig(AppConfig):
     name = 'notificaciones'
 
     def ready(self):
-        # Programar la tarea en un thread separado para evitar warnings
-        # sobre acceso a la BD durante la inicialización
+        #programa la tarea en un thread para evitar warnings sobre acceso a la db durante la inicialización
         def schedule_task():
             from .views import scheduleTaskNotificaciones
             scheduleTaskNotificaciones()
         
-        # Solo programar si no estamos en modo de migraciones
+        #solo programar si no estamos en modo de migraciones
         import sys
         if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
             threading.Thread(target=schedule_task, daemon=True).start()

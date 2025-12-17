@@ -46,8 +46,6 @@ def configurar(request):
     if type(usuario) == AnonymousUser:
         return Response({"error": "Login required"})
 
-    print(usuario)
-
     username = request.data.get("username")
     if username:
         oldname = usuario.username

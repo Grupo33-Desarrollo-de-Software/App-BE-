@@ -2,81 +2,32 @@ from abc import ABC, abstractmethod
 from django.core.mail import send_mail
 from notificaciones.models import Notificacion
 
+#basado en el patron strategy, para permitir que se puedan agregar varios tipos de notifs sin cambiar 
+#el codigo en las otras partes
 
 class NotificationStrategy(ABC):
-    """
-    Interfaz abstracta para las estrategias de notificación.
-    Define el contrato que todas las estrategias de notificación deben implementar.
-    """
+    #interfaz abstracta para las estrategias de notificación
 
     @abstractmethod
     def can_send(self, usuario):
-        """
-        Verifica si la estrategia puede enviar notificaciones al usuario.
-
-        Args:
-            usuario: Instancia del modelo Usuario
-
-        Returns:
-            bool: True si puede enviar, False en caso contrario
-        """
+        #verifica si puede enviar notifs al usuario
         pass
 
     @abstractmethod
     def send(self, usuario, titulo, cuerpo):
-        """
-        Envía una notificación al usuario usando esta estrategia.
-
-        Args:
-            usuario: Instancia del modelo Usuario
-            titulo: Título de la notificación
-            cuerpo: Cuerpo/contenido de la notificación
-
-        Returns:
-            bool: True si se envió exitosamente, False en caso contrario
-        """
+        #envia una notif al usuario usando la estrategia 
         pass
 
 
 class EmailNotificationStrategy(NotificationStrategy):
-    """
-    Estrategia para enviar notificaciones por correo electrónico.
-    """
-
+    #estrategia para enviar notifs por email
     def __init__(self, from_email="notifymusic33@gmail.com"):
-        """
-        Inicializa la estrategia de email.
-
-        Args:
-            from_email: Dirección de correo desde la cual se enviarán las notificaciones
-        """
         self.from_email = from_email
 
     def can_send(self, usuario):
-        """
-        Verifica si el usuario tiene habilitado el envío por email
-        y tiene una dirección de correo configurada.
-
-        Args:
-            usuario: Instancia del modelo Usuario
-
-        Returns:
-            bool: True si puede enviar email, False en caso contrario
-        """
         return usuario.notifPorMail and bool(usuario.email)
 
     def send(self, usuario, titulo, cuerpo):
-        """
-        Envía una notificación por correo electrónico.
-
-        Args:
-            usuario: Instancia del modelo Usuario
-            titulo: Título de la notificación
-            cuerpo: Cuerpo/contenido de la notificación
-
-        Returns:
-            bool: True si se envió exitosamente, False en caso contrario
-        """
         if not self.can_send(usuario):
             return False
 
@@ -95,35 +46,11 @@ class EmailNotificationStrategy(NotificationStrategy):
 
 
 class DatabaseNotificationStrategy(NotificationStrategy):
-    """
-    Estrategia para guardar notificaciones en la base de datos.
-    Esta estrategia siempre debe ejecutarse para mantener el historial.
-    """
-
+    #estrategia para guardar las notifs en la db
     def can_send(self, usuario):
-        """
-        Siempre puede guardar en la base de datos.
-
-        Args:
-            usuario: Instancia del modelo Usuario
-
-        Returns:
-            bool: Siempre True
-        """
         return True
 
     def send(self, usuario, titulo, cuerpo):
-        """
-        Guarda la notificación en la base de datos.
-
-        Args:
-            usuario: Instancia del modelo Usuario
-            titulo: Título de la notificación
-            cuerpo: Cuerpo/contenido de la notificación
-
-        Returns:
-            bool: True si se guardó exitosamente, False en caso contrario
-        """
         try:
             Notificacion.objects.create(
                 titulo=titulo,
@@ -137,14 +64,7 @@ class DatabaseNotificationStrategy(NotificationStrategy):
 
 
 class RecommendationNotificationStrategy(NotificationStrategy):
-    """
-    Estrategia para generar y enviar notificaciones de recomendaciones de álbumes.
-    Esta estrategia genera las recomendaciones basándose en los álbumes seguidos
-    por el usuario y luego las envía usando otras estrategias de entrega.
-    """
-
     def __init__(self):
-        """Inicializa la estrategia de recomendaciones."""
         import random
         from apiExterna import apiExterna
         from followlists.models import Follow
@@ -158,15 +78,6 @@ class RecommendationNotificationStrategy(NotificationStrategy):
         self.Artista = Artista
 
     def can_send(self, usuario):
-        """
-        Verifica si el usuario tiene habilitado las notificaciones de recomendaciones.
-
-        Args:
-            usuario: Instancia del modelo Usuario
-
-        Returns:
-            bool: True si puede enviar recomendaciones, False en caso contrario
-        """
         return usuario.notifRecomendaciones
 
     def send(self, usuario, titulo, cuerpo):
@@ -174,12 +85,12 @@ class RecommendationNotificationStrategy(NotificationStrategy):
         if not self.can_send(usuario):
             return None
 
-        # Obtener los follows del usuario
+        #obtengo los follows del usuario
         follows = self.Follow.objects.filter(usuario=usuario.id)
         if not follows.exists():
             return None
 
-        # Obtener los álbumes seguidos
+        #obtengo, de los follow,s los álbumes seguidos
         albums = []
         for f in follows:
             a = self.Album.objects.filter(id=f.album.id).first()
@@ -189,7 +100,7 @@ class RecommendationNotificationStrategy(NotificationStrategy):
         if not albums:
             return None
 
-        # Obtener los artistas de esos álbumes
+        #obtengo los artistas de dichos albumes 
         artistas = []
         for a in albums:
             if a and a.autor:
@@ -200,7 +111,7 @@ class RecommendationNotificationStrategy(NotificationStrategy):
         if not artistas:
             return None
 
-        # Obtener recomendaciones similares de la API externa
+        #obtengo recomendaciones de la api externa
         recomendaciones = []
         for artista in artistas:
             try:
@@ -214,22 +125,109 @@ class RecommendationNotificationStrategy(NotificationStrategy):
         if not recomendaciones:
             return None
 
-        # Aleatorizar y limitar a 5 recomendaciones
+        #aleatorizo las recomendaciones
         self.random.seed()
         self.random.shuffle(recomendaciones)
 
         try:
+            #agarro solo 5
             recomendaciones = recomendaciones[:5]
         except Exception:
             pass
 
-        # Generar título y cuerpo de la notificación
+        #genero la notif en si
         titulo = "Tal vez te gusten los siguientes álbumes 🧐"
         cuerpo = ""
         for r in recomendaciones:
             cuerpo += f"{r['titulo']} - {r['artista']}<br/>"
 
-        # Enviar usando el contexto de notificaciones
+        context = NotificationContext()
+        context.add_strategy(DatabaseNotificationStrategy())
+        context.add_strategy(EmailNotificationStrategy())
+
+        return context.send_notification(usuario, titulo, cuerpo)
+
+
+class NewAlbumsNotificationStrategy(NotificationStrategy):
+    #estrategia para notificar sobre nuevos álbumes de artistas seguidos
+    def __init__(self):
+        from apiExterna import apiExterna
+        from followlists.models import Follow
+        from albums.models import Album
+        from artistas.models import Artista
+        from datetime import datetime, timedelta
+
+        self.apiExterna = apiExterna
+        self.Follow = Follow
+        self.Album = Album
+        self.Artista = Artista
+        self.datetime = datetime
+        self.timedelta = timedelta
+
+    def can_send(self, usuario):
+        return usuario.notifGenerales
+
+    def send(self, usuario, titulo, cuerpo):
+        if not self.can_send(usuario):
+            return None
+
+        #obtengo los follows del usuario
+        follows = self.Follow.objects.filter(usuario=usuario.id)
+        if not follows.exists():
+            return None
+
+        #obtengo los álbumes seguidos
+        albums = []
+        for f in follows:
+            a = self.Album.objects.filter(id=f.album.id).first()
+            if a:
+                albums.append(a)
+
+        if not albums:
+            return None
+
+        #obtengo los artistas de dichos álbumes
+        artistas = []
+        for a in albums:
+            if a and a.autor:
+                artista = self.Artista.objects.filter(id=a.autor.id).first()
+                if artista:
+                    artistas.append(artista)
+
+        if not artistas:
+            return None
+
+        #obtengo nuevos álbumes de la api externa
+        nuevos = []
+        for artista in artistas:
+            try:
+                top = self.apiExterna.getTopAlbumsFromArtista(artista.name)
+                if top:
+                    for album in top:
+                        try:
+                            if album.get("fechaLanzamiento"):
+                                fecha = self.datetime.strptime(
+                                    album["fechaLanzamiento"], "%d %b %Y"
+                                )
+                                semanaPasada = self.datetime.today() - self.timedelta(days=7)
+                                if fecha > semanaPasada:
+                                    nuevos.append(album)
+                        except (ValueError, KeyError) as e:
+                            print(f"Error parseando fecha del álbum: {e}")
+                            continue
+            except Exception as e:
+                print(f"Error obteniendo top álbumes para {artista.name}: {e}")
+                continue
+
+        if not nuevos:
+            return None
+
+        #genero la notif en si
+        titulo = "Deberías chequear los nuevos álbumes de tus artistas favoritos!!!"
+        cuerpo = ""
+        for n in nuevos:
+            cuerpo += f"{n['titulo']} - {n['artista']}<br/>"
+
         context = NotificationContext()
         context.add_strategy(DatabaseNotificationStrategy())
         context.add_strategy(EmailNotificationStrategy())
@@ -238,27 +236,14 @@ class RecommendationNotificationStrategy(NotificationStrategy):
 
 
 class NotificationContext:
-    """
-    Contexto que gestiona las estrategias de notificación.
-    Permite agregar y ejecutar múltiples estrategias de forma flexible.
-    """
-
+    #contexto q permite gestionar (agregar y ejecutar) las estrategias de notifs
+    
     def __init__(self):
-        """
-        Inicializa el contexto con una lista vacía de estrategias.
-        """
+        #inicializo la lista de estrategias
         self.strategies = []
 
     def add_strategy(self, strategy):
-        """
-        Agrega una estrategia de notificación al contexto.
-
-        Args:
-            strategy: Instancia de NotificationStrategy
-
-        Returns:
-            NotificationContext: Retorna self para permitir encadenamiento
-        """
+        #agrego una estrategia. me fijo que sea una instancia de NotificationStrategy
         if isinstance(strategy, NotificationStrategy):
             self.strategies.append(strategy)
         else:
@@ -268,17 +253,7 @@ class NotificationContext:
         return self
 
     def send_notification(self, usuario, titulo, cuerpo):
-        """
-        Envía una notificación usando todas las estrategias configuradas.
-
-        Args:
-            usuario: Instancia del modelo Usuario
-            titulo: Título de la notificación
-            cuerpo: Cuerpo/contenido de la notificación
-
-        Returns:
-            dict: Diccionario con los resultados de cada estrategia
-        """
+        #envio la notif usando todas las estrategias configuradas
         results = {}
 
         for strategy in self.strategies:
