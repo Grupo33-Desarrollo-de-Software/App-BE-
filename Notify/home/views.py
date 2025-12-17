@@ -5,6 +5,8 @@ from notificaciones.models import Notificacion
 from usuarios.models import Usuario
 from django.shortcuts import redirect
 from django.contrib.auth import logout
+from notificaciones.actions import crearNotificacion 
+
 
 def index(request):
     if request.user.is_authenticated:
@@ -19,9 +21,7 @@ def index(request):
 
 def crearNotificacion(request, titulo, cuerpo):
     usuario = request.user
-    notificacion = Notificacion.objects.create(
-        titulo=titulo, cuerpo=cuerpo, usuario=usuario,
-    )
+    crearNotificacion(usuario, titulo, cuerpo)
     return redirect("/home/")
 
 def logout_view(request):

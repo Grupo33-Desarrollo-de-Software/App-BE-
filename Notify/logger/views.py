@@ -209,7 +209,6 @@ def monitoring_dashboard(request):
 @api_view(["GET"])
 @permission_classes([IsAdminUser])
 def monitoring_details(request, request_id):
-
     try:
         monitor = APIMonitor.objects.select_related("user").get(request_id=request_id)
         serializer = APIMonitorSerializer(monitor)
@@ -223,9 +222,7 @@ def monitoring_details(request, request_id):
 @api_view(["GET"])
 @permission_classes([IsAdminUser])
 def monitoring_errors(request):
-    """
-    Obtener lista de errores con opciones de filtrado.
-    """
+    #obtenemos la lista de errores con opciones de filtrado
     hours = int(request.GET.get("hours", 24))
     status_code = request.GET.get("status_code")
     endpoint = request.GET.get("endpoint")
@@ -249,7 +246,7 @@ def monitoring_errors(request):
 @api_view(["GET"])
 @permission_classes([IsAdminUser])
 def monitoring_logs(request):
-    # Obtener las últimas 100 entradas de la bitácora.
+    #obtenemos las últimas 100 entradas de la bitácora.
     try:
         logs = Log.objects.all().order_by("-datetime")[:100]
         serializer = LogSerializer(logs, many=True)

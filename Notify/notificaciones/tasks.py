@@ -11,15 +11,14 @@ def _run_task_notificaciones():
             recomendarAlbums(u)
             nuevoDeArtista(u)
 
-
+#tenemos el schedule 5 para que se vea en la demo
 @background(schedule=5)
 def taskNotificaciones_bg():
     _run_task_notificaciones()
+    taskNotificaciones_bg(schedule=5)
 
 
 def taskNotificaciones(*args, **kwargs):
-    # Ejecuta la lógica de notificaciones sin scheduler (tests) o agenda
-    # como tarea en segundo plano si se pasan argumentos (ej. repeat).
     if args or kwargs:
         return taskNotificaciones_bg(*args, **kwargs)
     return _run_task_notificaciones()
