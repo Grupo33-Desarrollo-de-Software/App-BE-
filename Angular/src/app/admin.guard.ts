@@ -1,4 +1,5 @@
-// Guard que protege rutas solo para administradores
+//guard (protector de rutas) que protege rutas solo para administradores
+//se ejecuta antes de cargar una ruta protegida
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { AuthService } from './auth.service';
@@ -8,19 +9,21 @@ import { AuthService } from './auth.service';
 })
 export class AdminGuard implements CanActivate {
   constructor(
-    private authService: AuthService,
-    private router: Router
+    private authService: AuthService, //servicio de autenticación
+    private router: Router //servicio de navegación
   ) { }
 
-  // Verifica si el usuario es admin antes de permitir acceso
+  //método que Angular llama antes de activar una ruta protegida
+  //retorna true si permite el acceso, false si lo bloquea
   canActivate(): boolean {
+    //verifica que el usuario esté autenticado Y sea administrador
     if (this.authService.isAuthenticated() && this.authService.checkIsAdmin()) {
-      return true;
+      return true; //permite el acceso
     }
 
-    // Si no es admin, redirige al login
+    //si no es admin o no está autenticado, redirige al login
     this.router.navigate(['/login']);
-    return false;
+    return false; //bloquea el acceso
   }
 }
 

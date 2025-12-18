@@ -3,10 +3,10 @@ from usuarios import models as modelUsuario
 from albums import models as modelAlbum
 
 CHOICES = (
-    (1, 'malísimo'),
-    (2, 'meh'),
-    (3, 'maso'),
-    (4, 'banco'),
+    (1, 'Muy malo'),
+    (2, 'Malo'),
+    (3, 'Bueno'),
+    (4, 'Muy bueno'),
     (5, 'AOTY'),
 )
 

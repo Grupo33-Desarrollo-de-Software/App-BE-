@@ -1,23 +1,24 @@
 from django.contrib.auth.models import AnonymousUser
-from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from .models import Usuario
 from .serializers import UserSerializer
-
 from logger.views import logCrud
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    #clase para ver y editar los usuarios
     queryset = Usuario.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
 
 class UserLogIn(ObtainAuthToken):
+    #clase para loguear a los usuarios
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
@@ -38,10 +39,10 @@ class UserLogIn(ObtainAuthToken):
             }
         )
 
-
+#usamos el decorador para que solo se pueda acceder a esta vista con POST
 @api_view(["POST"])
 def configurar(request):
-
+    #configurar los usuarios
     usuario = request.user
     if type(usuario) == AnonymousUser:
         return Response({"error": "Login required"})

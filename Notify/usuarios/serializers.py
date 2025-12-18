@@ -16,15 +16,15 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ('username', )
 
     def create(self, validated_data):
-        # Extraer la contraseña antes de crear el usuario
+        #extraemos la contraseña antes de crear el usuario para poder hashearla
         password = validated_data.pop('password', None)
         if not password:
             raise serializers.ValidationError({'password': 'La contraseña es requerida'})
-        
-        # Crear usuario sin contraseña primero
+
+        #creamos usuario sin contraseña primero
         user = Usuario.objects.create(**validated_data)
         
-        # Hashear y establecer contraseña correctamente
+        #hasheamos y establecemos contraseña correctamente
         user.set_password(password)
         user.save()
         

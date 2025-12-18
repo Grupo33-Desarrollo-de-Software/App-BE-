@@ -74,7 +74,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "logger.middleware.APIMonitoringMiddleware",  
-    "logger.middleware.logResponsetimeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -168,4 +167,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "notifymusic33@gmail.com"
-EMAIL_HOST_PASSWORD = "badm angg bsks ftlb"
+archivo_pass = open("Notify/pass.txt", "r")
+EMAIL_HOST_PASSWORD = archivo_pass.read().strip()
+archivo_pass.close()
+

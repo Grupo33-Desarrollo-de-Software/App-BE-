@@ -66,13 +66,13 @@ class DatabaseNotificationStrategy(NotificationStrategy):
 class RecommendationNotificationStrategy(NotificationStrategy):
     def __init__(self):
         import random
-        from apiExterna import apiExterna
+        import apiExterna.apiExterna as api
         from followlists.models import Follow
         from albums.models import Album
         from artistas.models import Artista
 
         self.random = random
-        self.apiExterna = apiExterna
+        self.apiExterna = api
         self.Follow = Follow
         self.Album = Album
         self.Artista = Artista
@@ -151,13 +151,13 @@ class RecommendationNotificationStrategy(NotificationStrategy):
 class NewAlbumsNotificationStrategy(NotificationStrategy):
     #estrategia para notificar sobre nuevos álbumes de artistas seguidos
     def __init__(self):
-        from apiExterna import apiExterna
+        import apiExterna.apiExterna as api
         from followlists.models import Follow
         from albums.models import Album
         from artistas.models import Artista
         from datetime import datetime, timedelta
 
-        self.apiExterna = apiExterna
+        self.apiExterna = api
         self.Follow = Follow
         self.Album = Album
         self.Artista = Artista

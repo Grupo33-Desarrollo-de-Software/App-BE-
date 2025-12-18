@@ -1,4 +1,5 @@
-// Define la estructura de un álbum
+//interfaz: define la estructura de un álbum
+//se usa para tipar los datos que vienen del backend
 export interface Album {
   titulo: string;
   artista: string;

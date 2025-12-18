@@ -39,8 +39,8 @@ class APIMonitorAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-    
+
+    #previene la creación manual, solo lo permite a través del middleware
     def has_add_permission(self, request):
         return False  
-    # Previene la creación manual, solo lo permite a través del middleware
     

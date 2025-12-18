@@ -11,8 +11,6 @@ import json
 
 User = get_user_model()
 
-# no hay q borrar las cosas dsp porq el testcase de django los borra despues
-
 
 class AlbumGetInfoTest(TestCase):
     # clase para testear: Obtener info. de albumes
