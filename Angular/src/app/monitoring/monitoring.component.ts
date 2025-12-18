@@ -1,20 +1,22 @@
-// Componente para el panel de monitoreo de la API (solo administradores)
+//componente para el panel de monitoreo de la API (solo administradores)
+//muestra métricas, errores y logs del sistema
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 
+//URL base del backend
 const backendApi = `http://127.0.0.1:8000/api/v1`;
 
-// Estructura de una entrada de bitácora
+//interfaz: estructura de una entrada de bitácora (log del sistema)
 interface LogEntry {
-  tipo: string;
-  cuerpo: string;
-  fechahora: string;
+  tipo: string; //tipo de log (CRUD, ERROR, ACTION, RESPONSETIME)
+  cuerpo: string; //mensaje del log
+  fechahora: string; //fecha y hora del log
 }
 
-// Estructura de las métricas de monitoreo
+//interfaz: estructura completa de las métricas de monitoreo que vienen del backend
 interface MonitoringMetrics {
   time_range_hours: number;
   total_requests: number;
@@ -62,30 +64,34 @@ export class MonitoringComponent implements OnInit {
   timeRanges = [1, 6, 12, 24, 48, 72]; // Opciones de rango de tiempo
 
   constructor(
-    private http: HttpClient,
-    private router: Router,
-    private authService: AuthService
+    private http: HttpClient, //servicio HTTP para hacer peticiones
+    private router: Router, //servicio de navegación
+    private authService: AuthService //servicio de autenticación
   ) { }
 
-  // Al iniciar, carga las métricas y la bitácora
+  //se ejecuta cuando el componente se inicializa
+  //carga las métricas y la bitácora automáticamente
   ngOnInit(): void {
     this.loadMetrics();
     this.loadLogs();
   }
 
-  // Obtiene los headers con el token de autenticación
+  //obtiene los headers HTTP con el token de autenticación
+  //necesario para las peticiones al backend (solo admin)
   getAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
     return new HttpHeaders({
-      'Authorization': `Token ${token}`
+      'Authorization': `Token ${token}` //formato: "Token <token_value>"
     });
   }
 
-  // Carga las métricas de monitoreo desde el servidor
+  //carga las métricas de monitoreo desde el servidor
+  //hace una petición GET al endpoint del dashboard de monitoreo
   loadMetrics(): void {
     this.isLoading.set(true);
     this.error.set(null);
 
+    //verifica que haya un token de autenticación
     const token = this.authService.getToken();
     if (!token) {
       this.isLoading.set(false);
@@ -97,15 +103,17 @@ export class MonitoringComponent implements OnInit {
     const headers = this.getAuthHeaders();
     const hours = this.selectedHours();
 
-    // Solicita las métricas al servidor
+    //solicita las métricas al servidor con el rango de tiempo seleccionado
     this.http.get<MonitoringMetrics>(
       `${backendApi}/logger/monitoring/dashboard?hours=${hours}`,
       { headers }
     ).subscribe({
+      //si la petición es exitosa
       next: (data) => {
         this.metrics.set(data);
         this.isLoading.set(false);
       },
+      //si hay un error en la petición
       error: (err) => {
         this.isLoading.set(false);
         console.error('Monitoring dashboard error:', err);
@@ -117,6 +125,7 @@ export class MonitoringComponent implements OnInit {
           url: err.url
         });
 
+        //procesa diferentes tipos de errores HTTP
         if (err.status === 403) {
           this.error.set('Acceso denegado. Se requieren privilegios de administrador.');
         } else if (err.status === 401) {
@@ -143,21 +152,24 @@ export class MonitoringComponent implements OnInit {
     });
   }
 
-  // Cambia el rango de tiempo y recarga las métricas
+  //cambia el rango de tiempo seleccionado y recarga las métricas
+  //se ejecuta cuando el usuario selecciona un nuevo rango de tiempo
   onTimeRangeChange(hours: number): void {
     this.selectedHours.set(hours);
-    this.loadMetrics();
+    this.loadMetrics(); //recarga las métricas con el nuevo rango
   }
 
-  // Obtiene el color según el código de estado HTTP
+  //obtiene el color del texto según el código de estado HTTP
+  //se usa en el template para colorear los códigos de estado
   getStatusColor(statusCode: number): string {
-    if (statusCode >= 500) return 'text-red-500';
-    if (statusCode >= 400) return 'text-orange-500';
-    if (statusCode >= 300) return 'text-yellow-500';
-    return 'text-green-500';
+    if (statusCode >= 500) return 'text-red-500'; //errores del servidor (500-599)
+    if (statusCode >= 400) return 'text-orange-500'; //errores del cliente (400-499)
+    if (statusCode >= 300) return 'text-yellow-500'; //redirecciones (300-399)
+    return 'text-green-500'; //éxito (200-299)
   }
 
-  // Obtiene el color del badge según el código de estado
+  //obtiene el color del badge (etiqueta) según el código de estado HTTP
+  //se usa en el template para mostrar badges con colores
   getStatusBadgeColor(statusCode: number): string {
     if (statusCode >= 500) return 'bg-red-500/20 text-red-300 border-red-500';
     if (statusCode >= 400) return 'bg-orange-500/20 text-orange-300 border-orange-500';
@@ -165,21 +177,25 @@ export class MonitoringComponent implements OnInit {
     return 'bg-green-500/20 text-green-300 border-green-500';
   }
 
-  // Formatea un número con separadores de miles
+  //formatea un número agregando separadores de miles (formato español)
+  //ejemplo: 1000000 -> "1.000.000"
   formatNumber(num: number): string {
     return num.toLocaleString('es-ES');
   }
 
-  // Formatea el tiempo en milisegundos o segundos
+  //formatea el tiempo mostrando milisegundos o segundos según corresponda
+  //ejemplo: 500 -> "500.00ms", 1500 -> "1.50s"
   formatTime(ms: number): string {
-    if (ms < 1000) return `${ms.toFixed(2)}ms`;
-    return `${(ms / 1000).toFixed(2)}s`;
+    if (ms < 1000) return `${ms.toFixed(2)}ms`; //menos de 1 segundo: muestra ms
+    return `${(ms / 1000).toFixed(2)}s`; //1 segundo o más: muestra segundos
   }
 
-  // Carga las últimas 100 entradas de la bitácora
+  //carga las últimas 100 entradas de la bitácora desde el servidor
+  //hace una petición GET al endpoint de logs
   loadLogs(): void {
     this.isLoadingLogs.set(true);
 
+    //verifica que haya un token de autenticación
     const token = this.authService.getToken();
     if (!token) {
       this.isLoadingLogs.set(false);
@@ -188,15 +204,17 @@ export class MonitoringComponent implements OnInit {
 
     const headers = this.getAuthHeaders();
 
-    // Solicita las entradas de la bitácora al servidor
+    //solicita las entradas de la bitácora al servidor
     this.http.get<LogEntry[]>(
       `${backendApi}/logger/monitoring/logs`,
       { headers }
     ).subscribe({
+      //si la petición es exitosa
       next: (data) => {
         this.logs.set(data);
         this.isLoadingLogs.set(false);
       },
+      //si hay un error
       error: (err) => {
         this.isLoadingLogs.set(false);
         console.error('Error al cargar la bitácora:', err);
@@ -204,23 +222,25 @@ export class MonitoringComponent implements OnInit {
     });
   }
 
-  // Obtiene el color según el tipo de log
+  //obtiene el color del texto según el tipo de log
+  //se usa en el template para colorear los tipos de log
   getLogTypeColor(tipo: string): string {
     switch (tipo) {
       case 'ERROR':
-        return 'text-red-400';
+        return 'text-red-400'; //errores en rojo
       case 'CRUD':
-        return 'text-blue-400';
+        return 'text-blue-400'; //operaciones CRUD en azul
       case 'ACTION':
-        return 'text-yellow-400';
+        return 'text-yellow-400'; //acciones en amarillo
       case 'RESPONSETIME':
-        return 'text-green-400';
+        return 'text-green-400'; //tiempos de respuesta en verde
       default:
-        return 'text-gray-400';
+        return 'text-gray-400'; //otros tipos en gris
     }
   }
 
-  // Obtiene el color del badge según el tipo de log
+  //obtiene el color del badge según el tipo de log
+  //se usa en el template para mostrar badges con colores
   getLogTypeBadgeColor(tipo: string): string {
     switch (tipo) {
       case 'ERROR':

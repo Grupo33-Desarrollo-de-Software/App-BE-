@@ -7,7 +7,7 @@ User = get_user_model()
 
 
 class HomeNotificationTests(TestCase):
-    # clase para testear: mostrar notificaciones en pantalla principal
+    #clase para testear: mostrar notificaciones en pantalla principal
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(
@@ -22,6 +22,6 @@ class HomeNotificationTests(TestCase):
         self.client.force_login(self.user)
         resp = self.client.get("/home/")
         self.assertEqual(resp.status_code, 200)
-        # Convierte el texto a bytes para poder usarlo en el assert
+        #convierte el texto a bytes para poder usarlo en el assert
         self.assertIn(b"Aviso", resp.content)
         self.assertIn(b"Contenido", resp.content)

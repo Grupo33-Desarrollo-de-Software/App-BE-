@@ -13,7 +13,7 @@ class LoggerApiTests(TestCase):
         Log.objects.create(logtype="CRUD", body="entry 1")
         Log.objects.create(logtype="ERROR", body="entry 2")
 
-        resp = self.client.get("/api/v1/logs/ANY")
+        resp = self.client.get("/api/v1/logger/logs/ANY")
 
         self.assertEqual(resp.status_code, 200)
         self.assertGreaterEqual(len(resp.data), 2)
@@ -22,7 +22,7 @@ class LoggerApiTests(TestCase):
         # verifica que se cree un log de tipo RESPONSETIME al hacer un get a la api
         initial = Log.objects.count()
 
-        self.client.get("/api/v1/logs/ANY")
+        self.client.get("/api/v1/logger/logs/ANY")
 
         self.assertEqual(Log.objects.count(), initial + 1)
         self.assertEqual(Log.objects.last().logtype, "RESPONSETIME")

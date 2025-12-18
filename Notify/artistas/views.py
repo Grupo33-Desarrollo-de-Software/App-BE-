@@ -5,7 +5,7 @@ import apiExterna.apiExterna as api
 
 
 def index(request):
-    return HttpResponse("Hello, world. Estás en artistas papá.")
+    return HttpResponse("Hello, world. Artistas")
 
 
 def getArtista(request):

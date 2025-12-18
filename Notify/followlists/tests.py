@@ -10,7 +10,6 @@ from artistas.models import Artista
 
 User = get_user_model()
 
-
 class FollowListTests(TestCase):
     # clase para testear: Obtener, agregar y eliminar álbumes de la lista de seguimiento
 

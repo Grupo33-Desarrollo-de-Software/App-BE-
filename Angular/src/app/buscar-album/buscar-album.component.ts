@@ -1,18 +1,19 @@
-// Componente para buscar y mostrar álbumes
+//componente para buscar y mostrar álbumes
+//permite buscar álbumes por nombre o artista y ver detalles
 import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ServiceAPI } from '../service-api.service';
 import { Album } from '../buscar-album';
 
-// Estructura simple de un álbum para la lista
+//interfaz: estructura simplificada de un álbum para mostrar en la lista de resultados
 interface AlbumSimple {
   titulo: string;
   artista: string;
   foto: string;
 }
 
-// Estructura detallada de un álbum
+//interfaz: estructura detallada de un álbum para la vista de detalles
 interface AlbumDetallado {
   titulo: string;
   artista: string;
@@ -179,69 +180,87 @@ interface AlbumDetallado {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BuscarAlbumComponent {
+  //inyecta el servicio de API usando inject() (alternativa a constructor)
   private apiService = inject(ServiceAPI);
 
-  busqueda = signal(''); // Texto de búsqueda
-  albumsFiltrados = signal<AlbumSimple[]>([]); // Lista de álbumes encontrados
-  albumSeleccionado = signal<AlbumDetallado | null>(null); // Álbum seleccionado para ver detalles
-  cargando = signal(false); // Indica si está cargando la búsqueda
-  cargandoDetalle = signal(false); // Indica si está cargando los detalles
-  error = signal(''); // Mensaje de error
+  //estados reactivos usando signals
+  busqueda = signal(''); //texto actual de búsqueda en el input
+  albumsFiltrados = signal<AlbumSimple[]>([]); //lista de álbumes encontrados en la búsqueda
+  albumSeleccionado = signal<AlbumDetallado | null>(null); //álbum seleccionado para ver detalles
+  cargando = signal(false); //indica si está cargando la búsqueda
+  cargandoDetalle = signal(false); //indica si está cargando los detalles de un álbum
+  error = signal(''); //mensaje de error a mostrar
 
-  // Busca álbumes según el texto ingresado
+  //busca álbumes según el texto ingresado en el input
+  //se ejecuta cada vez que el usuario escribe en el campo de búsqueda
   buscar(event: Event) {
+    //obtiene el valor del input y elimina espacios al inicio y final
     const valor = (event.target as HTMLInputElement).value.trim();
     this.busqueda.set(valor);
 
+    //si el campo está vacío, limpia los resultados
     if (valor === '') {
       this.albumsFiltrados.set([]);
       this.error.set('');
       return;
     }
 
+    //activa el estado de carga y limpia errores anteriores
     this.cargando.set(true);
     this.error.set('');
 
+    //hace la petición al backend para buscar álbumes
     this.apiService.searchAlbums(valor).subscribe({
+      //si la búsqueda es exitosa
       next: (albums: Album[]) => {
+        //convierte los álbumes completos a formato simple para la lista
         const albumsSimples: AlbumSimple[] = albums.map(album => ({
           titulo: album.titulo,
           artista: album.artista,
           foto: album.foto
         }));
+        //actualiza la lista de álbumes y desactiva el estado de carga
         this.albumsFiltrados.set(albumsSimples);
         this.cargando.set(false);
       },
+      //si hay un error en la búsqueda
       error: (err) => {
         console.error('Error al buscar álbumes:', err);
         this.error.set('Error al buscar álbumes. Por favor, intenta de nuevo.');
         this.cargando.set(false);
-        this.albumsFiltrados.set([]);
+        this.albumsFiltrados.set([]); //limpia los resultados
       }
     });
   }
 
 
-  // Obtiene información detallada de un álbum
+  //obtiene información detallada de un álbum específico
+  //se ejecuta cuando el usuario hace clic en un álbum de la lista
   getInfo(artista: string, titulo: string) {
+    //activa el estado de carga de detalles y limpia errores
     this.cargandoDetalle.set(true);
     this.error.set('');
 
+    //hace la petición al backend para obtener los detalles del álbum
     this.apiService.getInfo(artista, titulo).subscribe({
+      //si la petición es exitosa
       next: (album: Album) => {
+        //convierte el álbum a formato detallado con datos formateados
         const detalle: AlbumDetallado = {
           titulo: album.titulo,
           artista: album.artista,
           foto: album.foto,
-          fechaLanzamiento: this.formatearFecha(album.fechaLanzamiento),
-          reproducciones: this.formatearNumero(album.reproducciones),
-          oyentes: this.formatearNumero(album.oyentes),
-          info: album.info || 'No hay descripción disponible.',
-          cantidadCanciones: album.cantidadCanciones || 0
+          fechaLanzamiento: this.formatearFecha(album.fechaLanzamiento), //formatea la fecha
+          reproducciones: this.formatearNumero(album.reproducciones), //formatea el número
+          oyentes: this.formatearNumero(album.oyentes), //formatea el número
+          info: album.info || 'No hay descripción disponible.', //usa mensaje por defecto si no hay info
+          cantidadCanciones: album.cantidadCanciones || 0 //usa 0 si no hay cantidad
         };
+        //actualiza el álbum seleccionado y desactiva el estado de carga
         this.albumSeleccionado.set(detalle);
         this.cargandoDetalle.set(false);
       },
+      //si hay un error al obtener los detalles
       error: (err) => {
         console.error('Error al obtener información del álbum:', err);
         this.error.set('Error al obtener información del álbum. Por favor, intenta de nuevo.');
@@ -250,39 +269,49 @@ export class BuscarAlbumComponent {
     });
   }
 
-  // Limpia la selección y vuelve a la lista
+  //limpia la selección del álbum y vuelve a mostrar la lista de resultados
   limpiarSeleccion() {
     this.albumSeleccionado.set(null);
     this.error.set('');
   }
 
-  // Formatea un número con comas
+  //formatea un número agregando separadores de miles (comas)
+  //ejemplo: 1000000 -> "1.000.000" (formato español)
   private formatearNumero(numero: number | string): string {
+    //si es string, lo convierte a número
     if (typeof numero === 'string') {
       numero = parseInt(numero, 10);
     }
+    //si no es un número válido, retorna '0'
     if (isNaN(numero)) {
       return '0';
     }
+    //formatea el número con separadores de miles en formato español
     return numero.toLocaleString('es-ES');
   }
 
-  // Formatea una fecha en formato legible
+  //formatea una fecha en formato legible en español
+  //ejemplo: "2023-01-15" -> "15 de enero de 2023"
   private formatearFecha(fecha: string | null | undefined): string {
+    //si no hay fecha, retorna mensaje por defecto
     if (!fecha) {
       return 'Fecha no disponible';
     }
     try {
+      //intenta parsear la fecha
       const fechaObj = new Date(fecha);
+      //si no es una fecha válida, retorna la fecha original
       if (isNaN(fechaObj.getTime())) {
-        return fecha; // Si no se puede parsear, devolver la fecha original
+        return fecha;
       }
+      //formatea la fecha en español con formato largo
       return fechaObj.toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
       });
     } catch {
+      //si hay error, retorna la fecha original
       return fecha;
     }
   }

@@ -1,19 +1,16 @@
 from django.http import HttpResponse
-from requests import Response
 from followlists.models import Follow
 from calificaciones.models import Rate
 from albums.models import Album
 from artistas.models import Artista
 from django.template import loader
-import apiExterna.apiExterna as api
 from datetime import datetime
 from django.shortcuts import redirect
 from notificaciones.actions import crearNotificacion
-from apiExterna.apiExterna import sanitizarURL
+import apiExterna.apiExterna as api
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-
 from logger.views import logAction, logError, logCrud
 
 
@@ -31,8 +28,7 @@ def getAlbum(request):
 
 def getInfo(request, artista, album):
     try:
-        albumAux = api.buscarAlbum(sanitizarURL(artista), sanitizarURL(album))
-        resultado = api.parsearAlbum2(albumAux)
+        resultado = api.buscarAlbum(api.sanitizarURL(artista), api.sanitizarURL(album))
         context = {"resultado": resultado}
     except:
         context = {"resultado": []}

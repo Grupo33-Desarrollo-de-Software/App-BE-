@@ -3,9 +3,9 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import Usuario
 
 
-class UsuarioAdmin(BaseUserAdmin):
-    
-    # Campos para ver los usuarios en la lista
+class UsuarioAdmin(BaseUserAdmin):    
+    #clase para ver y editar los usuarios en el admin
+    #campos para ver los usuarios en la lista
     list_display = (
         "username",
         "email",
@@ -17,7 +17,7 @@ class UsuarioAdmin(BaseUserAdmin):
     )
     list_filter = ("is_staff", "is_superuser", "is_active", "date_joined")
 
-    # Campos para editar un usuario
+    #campos para editar un usuario
     fieldsets = (
         (None, {"fields": ("username", "password")}),
         (
@@ -43,7 +43,7 @@ class UsuarioAdmin(BaseUserAdmin):
         ("Important dates", {"fields": ("last_login", "date_joined")}),
     )
 
-    # Campos para agregar un nuevo usuario
+    #campos para agregar un nuevo usuario
     add_fieldsets = (
         (
             None,
@@ -74,6 +74,5 @@ class UsuarioAdmin(BaseUserAdmin):
             },
         ),
     )
-
 
 admin.site.register(Usuario, UsuarioAdmin)

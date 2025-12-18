@@ -4,42 +4,21 @@ from .views import logResponsetime
 from .models import APIMonitor
 from django.utils import timezone
 
-def logResponsetimeMiddleware(get_response):
-    #Middleware antiguo
-    def middleware(request):
-        tiempoAntes = datetime.datetime.now()
-
-        response = get_response(request)
-
-        tiempoDespues = datetime.datetime.now()
-        logResponsetime(tiempoDespues - tiempoAntes, request.method, request.path)
-
-        return response
-    return middleware
-
 
 class APIMonitoringMiddleware:
-
-    #Middleware completo de monitoreo de API que captura:
-    #- Detalles de solicitud/respuesta
-    #- Tiempos de respuesta
-    #- Información de errores
-    #- Información del usuario
-    #- IDs de solicitud para rastreo
-
-    
-    # Omitir monitoreo para ciertas rutas (admin, static, etc.)
+    #middleware completo del panel de monitoreo
+    #captura: detalles de get/post, tiempo de respuesta, informacion de errores/usuario, id de solicitud de rastreo
     
     def __init__(self, get_response):
         self.get_response = get_response
-        # Omitir monitoreo para estas rutas
+        #omitimos monitoreo para estas rutas
         self.skip_paths = ['/admin', '/static', '/media', '/favicon.ico']
     
     def __call__(self, request):
         if any(request.path.startswith(path) for path in self.skip_paths):
             return self.get_response(request)
         
-        # Solo monitorear rutas de la API
+        #solo monitorear rutas de la API
         if not request.path.startswith('/api/'):
             return self.get_response(request)
         
@@ -50,11 +29,11 @@ class APIMonitoringMiddleware:
         status_code = 500
         
         try:
-            # Obtener cuerpo de la solicitud y limitar tamaño
+            #obtenemos cuerpo de la solicitud y limitar tamaño
             request_body = None
             if request.method in ['POST', 'PUT', 'PATCH']:
                 try:
-                    if hasattr(request, 'body') and len(request.body) < 10000:  # Limitar a 10KB
+                    if hasattr(request, 'body') and len(request.body) < 10000:  #10KB
                         request_body = request.body.decode('utf-8', errors='ignore')
                 except:
                     pass
@@ -62,14 +41,18 @@ class APIMonitoringMiddleware:
             response = self.get_response(request)
             status_code = response.status_code
             
-            # Calcular tiempo de respuesta
+            #calcular tiempo de respuesta
             end_time = timezone.now()
-            response_time = (end_time - start_time).total_seconds() * 1000  # Convertir a milisegundos
+            response_time = (end_time - start_time).total_seconds() * 1000  #convertir a ms
+            deltatime = end_time - start_time  #logResponsetime
             
-            # Obtener usuario si está autenticado
+            #registrar tiempo de respuesta en Log 
+            logResponsetime(deltatime, request.method, request.path)
+            
+            #obtenemos usuario (si está autenticado)
             user = request.user if hasattr(request, 'user') and request.user.is_authenticated else None
             
-            # Crear registro de monitoreo
+            #creamos registro de monitoreo
             monitor = APIMonitor.objects.create(
                 method=request.method,
                 endpoint=request.path,
@@ -82,25 +65,29 @@ class APIMonitoringMiddleware:
             )
             request_id = monitor.request_id
             
-            # Si es un error, registrar más detalles
+            #si es un error, registrar más detalles
             if status_code >= 400:
                 self._log_error_details(monitor, response, status_code)
             
-            # Agregar ID para rastreo
+            #agregamos ID para rastreo
             response['X-Request-ID'] = str(request_id)
             
             return response
             
         except Exception as e:
-            # Capturar detalles de la excepción
+            #capturamos detalles de la excepción
             end_time = timezone.now()
             response_time = (end_time - start_time).total_seconds() * 1000
+            deltatime = end_time - start_time  # Para logResponsetime
             error_message = str(e)
             stack_trace = traceback.format_exc()
             
+            #registramos tiempo de respuesta en Log
+            logResponsetime(deltatime, request.method, request.path)
+            
             user = request.user if hasattr(request, 'user') and request.user.is_authenticated else None
             
-            # Crear registro de monitoreo con detalles del error
+            #creamos registro de monitoreo con detalles del error
             monitor = APIMonitor.objects.create(
                 method=request.method,
                 endpoint=request.path,
@@ -116,7 +103,7 @@ class APIMonitoringMiddleware:
             raise
     
     def get_client_ip(self, request):
-        #Extraer dirección IP del cliente desde la solicitud
+        #extraemos dirección IP del cliente desde la solicitud
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
@@ -125,9 +112,9 @@ class APIMonitoringMiddleware:
         return ip
     
     def _log_error_details(self, monitor, response, status_code):
-        #Registrar detalles adicionales
+        #registramos detalles adicionales
         try:
-            # Intentar extraer mensaje de error de la respuesta
+            #intentamos extraer mensaje de error de la respuesta
             if hasattr(response, 'data') and isinstance(response.data, dict):
                 error_msg = response.data.get('error') or response.data.get('detail') or str(response.data)
                 if error_msg and len(error_msg) < 2000:

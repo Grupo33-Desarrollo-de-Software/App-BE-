@@ -1,7 +1,6 @@
 from django.db import models
 from artistas.models import Artista
 
-# Create your models here.
 class Album(models.Model):
     title = models.CharField(max_length=100)
     tags = models.CharField(max_length=100)

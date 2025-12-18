@@ -7,7 +7,6 @@ from django.shortcuts import redirect
 from django.contrib.auth import logout
 from notificaciones.actions import crearNotificacion 
 
-
 def index(request):
     if request.user.is_authenticated:
         template = loader.get_template("home/index.html")

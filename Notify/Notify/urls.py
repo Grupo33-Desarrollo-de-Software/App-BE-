@@ -1,17 +1,3 @@
-'''
-from django.contrib import admin
-from django.urls import include, path
-
-urlpatterns = [
-    path("", include("login.urls")),
-    path("albums/", include("albums.urls")),
-    path("artistas/", include("artistas.urls")),
-    path("admin/", admin.site.urls),
-    path("home/", include("home.urls")),
-    path("calificar/", include("calificaciones.urls")),
-]
-'''
-
 from django.contrib import admin
 from django.urls import path, include, re_path, reverse_lazy
 from django.conf import settings
@@ -21,15 +7,11 @@ from rest_framework.routers import DefaultRouter
 from usuarios.views import UserViewSet, UserLogIn
 from albums.views import getAlbum
 
-
-# urlpatterns = [
-#    path(r'admin/', admin.site.urls),
-# ]
-
-
+#generamos el router estandar de REST
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
 
+#las urls de notify
 urlpatterns = [
     path("", include("login.urls")),
     path("home/", include("home.urls")),
@@ -39,10 +21,7 @@ urlpatterns = [
     path('api/v1/', include('followlists.urls')),
     path('api/v1/', include('usuarios.urls')),
     path('api/v1/logger/', include('logger.urls')),
-    # Compatibilidad con rutas antiguas usadas en tests (/api/v1/logs/<tipo>)
-    path('api/v1/', include('logger.urls')),
     path('api/v1/', include(router.urls)),
     path('api-user-login/', UserLogIn.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    re_path(r'^$', RedirectView.as_view(url=reverse_lazy('api-root'), permanent=False)),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) #habilita acceso de archivos media en local
