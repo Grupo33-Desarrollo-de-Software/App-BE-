@@ -2,7 +2,8 @@
 //provee métodos para hacer peticiones HTTP a la API
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { AuthService } from './auth.service';
 
 import { Album } from "./buscar-album";
 
@@ -59,7 +60,7 @@ export interface LoginResponse {
 })
 export class ServiceAPI {
   //inyecta el servicio HttpClient para hacer peticiones HTTP
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private auth: AuthService) { }
 
   //busca álbumes por nombre o artista en la API externa
   //retorna un Observable con un array de álbumes
@@ -67,8 +68,11 @@ export class ServiceAPI {
     //codifica el texto de búsqueda para que sea seguro en la URL
     const encodedBusqueda = encodeURIComponent(busqueda);
     //hace una petición GET al endpoint de búsqueda
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ 'Authorization': `Token ${token}` }) : undefined;
     return this.http.get<Album[]>(
-      `${backendApi}/albums/${encodedBusqueda}`
+      `${backendApi}/albums/${encodedBusqueda}`,
+      headers ? { headers } : undefined
     );
   }
 
@@ -79,8 +83,11 @@ export class ServiceAPI {
     const encodedArtista = encodeURIComponent(artista);
     const encodedAlbum = encodeURIComponent(album);
     //hace una petición GET al endpoint de información del álbum
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ 'Authorization': `Token ${token}` }) : undefined;
     return this.http.get<Album>(
-      `${backendApi}/album/${encodedArtista}/${encodedAlbum}`
+      `${backendApi}/album/${encodedArtista}/${encodedAlbum}`,
+      headers ? { headers } : undefined
     );
   }
 

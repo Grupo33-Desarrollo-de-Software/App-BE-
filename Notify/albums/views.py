@@ -17,6 +17,12 @@ from logger.views import logAction, logError, logCrud
 def getAlbum(request):
     try:
         busqueda = request.GET["album"]
+        if busqueda:
+            if request.user.is_authenticated:
+                logAction(f"El usuario {request.user.username} buscó {busqueda}")
+            else:
+                logAction(f"Un usuario anónimo buscó {busqueda}")
+        
         resultados = api.buscarAlbums(busqueda)
         context = {"resultados": resultados}
     except:
@@ -25,7 +31,7 @@ def getAlbum(request):
         template = loader.get_template("albums/buscarAlbum.html")
         return HttpResponse(template.render(context, request))
 
-
+"""
 def getInfo(request, artista, album):
     try:
         resultado = api.buscarAlbum(api.sanitizarURL(artista), api.sanitizarURL(album))
@@ -35,7 +41,7 @@ def getInfo(request, artista, album):
     finally:
         template = loader.get_template("albums/masinfo.html")
         return HttpResponse(template.render(context, request))
-
+"""
 
 def calificar(request, artista, album):
     usuario = request.user
