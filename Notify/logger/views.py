@@ -80,9 +80,9 @@ def logview(request):
 
 
 #endpoint GET para obtener logs filtrados por tipo
-#permite acceso público (AllowAny) para consultar los logs del sistema
+#solo accesible para administradores (IsAdminUser)
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAdminUser])
 def getlogs(request, logtype):
     logs = []
 

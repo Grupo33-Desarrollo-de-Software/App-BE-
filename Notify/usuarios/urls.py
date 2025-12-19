@@ -5,3 +5,16 @@ from . import views
 urlpatterns = [
     path("configurar", views.configurar, name="configurar"),
 ]
+"""
+ejemplo 
+{
+  "username": "nuevo_nombre",
+  "email": "nuevo@email.com",
+  "bio": "Mi nueva biografía",
+  "notificaciones": {
+    "mail": true,
+    "recomendaciones": false,
+    "generales": true
+  }
+}
+"""
